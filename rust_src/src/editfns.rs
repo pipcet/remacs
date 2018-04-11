@@ -352,7 +352,7 @@ pub fn char_after(mut pos: LispObject) -> Option<EmacsInt> {
 /// properties to add to the result.
 /// usage: (fn STRING &rest PROPERTIES)
 #[lisp_fn(min = "1")]
-pub fn propertize(first: LispObject, args: &mut [LispObject]) -> LispObject {
+pub fn propertize(first: LispObject, args: & [LispObject]) -> LispObject {
     /* Number of rest args must be even. */
     if args.len() & 1 != 0 {
         error!("Wrong number of arguments");
