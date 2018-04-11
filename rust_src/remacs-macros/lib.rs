@@ -50,7 +50,7 @@ pub fn lisp_fn(attr_ts: TokenStream, fn_ts: TokenStream) -> TokenStream {
             let arg = quote! { ::lisp::LispObject::from_raw(#ident).into(), };
             rargs.append_all(arg);
         },
-        function::LispFnType::Many => {
+        function::LispFnType::Many(n) => {
             let args = quote! {
                 nargs: ::libc::ptrdiff_t,
                 args: *mut ::remacs_sys::Lisp_Object,
@@ -65,7 +65,19 @@ pub fn lisp_fn(attr_ts: TokenStream, fn_ts: TokenStream) -> TokenStream {
             };
             body.append_all(b);
 
-            let arg = quote! { unsafe { ::std::mem::transmute(args) } };
+            let b = quote!{
+                if nargs < (#n as isize) {
+                    error!("Wrong number of arguments");
+                }
+            };
+            body.append_all(b);
+
+            for i in 0..n {
+                let arg = quote!{ ::lisp::LispObject::from_raw(args[#i]).into(), };
+                rargs.append_all(arg);
+            }
+
+            let arg = quote! { unsafe { ::std::mem::transmute(& mut args[#n..]) } };
             rargs.append_all(arg);
         }
     }
@@ -81,7 +93,7 @@ pub fn lisp_fn(attr_ts: TokenStream, fn_ts: TokenStream) -> TokenStream {
     } else {
         match function.fntype {
             function::LispFnType::Normal(_) => quote! { #max_args },
-            function::LispFnType::Many => quote! { ::lisp::MANY  },
+            function::LispFnType::Many(_) => quote! { ::lisp::MANY  },
         }
     };
     let symbol_name = CByteLiteral(&lisp_fn_args.name);

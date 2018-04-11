@@ -5,15 +5,16 @@ type Result<T> = ::std::result::Result<T, &'static str>;
 pub enum LispFnType {
     /// A normal function with given max. number of arguments
     Normal(i16),
-    /// A function taking an arbitrary amount of arguments as a slice
-    Many,
+    /// A function taking a given fixed number of arguments, plus an
+    /// arbitrary amount of arguments as a slice
+    Many(usize),
 }
 
 impl LispFnType {
     pub fn def_min_args(&self) -> i16 {
         match *self {
             LispFnType::Normal(n) => n,
-            LispFnType::Many => 0,
+            LispFnType::Many(_) => 0,
         }
     }
 }
@@ -86,16 +87,16 @@ fn get_fn_arg_ident_ty(fn_arg: &syn::FnArg) -> Result<syn::Ident> {
 
 fn parse_function_type(fndecl: &syn::FnDecl) -> Result<LispFnType> {
     let nargs = fndecl.inputs.len() as i16;
-    for fnarg in &fndecl.inputs {
+    for (i, fnarg) in fndecl.inputs.iter().enumerate() {
         match *fnarg {
             syn::FnArg::Captured(syn::ArgCaptured { ref ty, .. }) | syn::FnArg::Ignored(ref ty) => {
                 match parse_arg_type(ty) {
                     ArgType::LispObject => {}
                     ArgType::LispObjectSlice => {
-                        if fndecl.inputs.len() != 1 {
-                            return Err("`[LispObject]` cannot be mixed in with other types");
+                        if i != fndecl.inputs.len() - 1 {
+                            return Err("lisp functions' slice arguments must come last");
                         }
-                        return Ok(LispFnType::Many);
+                        return Ok(LispFnType::Many(fndecl.inputs.len() - 1));
                     }
                     ArgType::Other => {}
                 }
