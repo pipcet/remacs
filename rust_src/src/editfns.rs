@@ -352,18 +352,14 @@ pub fn char_after(mut pos: LispObject) -> Option<EmacsInt> {
 /// properties to add to the result.
 /// usage: (fn STRING &rest PROPERTIES)
 #[lisp_fn(min = "1")]
-pub fn propertize(args: &mut [LispObject]) -> LispObject {
-    /* Number of args must be odd. */
-    if args.len() & 1 == 0 {
+pub fn propertize(first: LispObject, args: &mut [LispObject]) -> LispObject {
+    /* Number of rest args must be even. */
+    if args.len() & 1 != 0 {
         error!("Wrong number of arguments");
     }
 
     let mut it = args.iter();
-
-    // the unwrap call is safe, the number of args has already been checked
-    let first = it.next().unwrap();
     let orig_string = first.as_string_or_error();
-
     let copy = LispObject::from_raw(unsafe { Fcopy_sequence(first.to_raw()) });
 
     // this is a C style Lisp_Object because that is what Fcons expects and returns.
