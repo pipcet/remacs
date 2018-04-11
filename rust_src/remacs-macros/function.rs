@@ -130,31 +130,27 @@ fn parse_arg_type(fn_arg: &syn::Type) -> ArgType {
         syn::Type::Reference(syn::TypeReference {
             elem: ref ty,
             ref lifetime,
-            ref mutability,
             ..
         }) => if lifetime.is_some() {
             ArgType::Other
         } else {
-            match *mutability {
-                None => ArgType::Other,
-                Some(_) => match **ty {
-                    syn::Type::Slice(syn::TypeSlice { elem: ref ty, .. }) => match **ty {
-                        syn::Type::Path(syn::TypePath {
-                            qself: ref qualification,
-                            ref path,
-                        }) => if qualification.is_some() {
-                            ArgType::Other
+            match **ty {
+                syn::Type::Slice(syn::TypeSlice { elem: ref ty, .. }) => match **ty {
+                    syn::Type::Path(syn::TypePath {
+                        qself: ref qualification,
+                        ref path,
+                    }) => if qualification.is_some() {
+                        ArgType::Other
+                    } else {
+                        if is_lisp_object(&path) {
+                            ArgType::LispObjectSlice
                         } else {
-                            if is_lisp_object(&path) {
-                                ArgType::LispObjectSlice
-                            } else {
-                                ArgType::Other
-                            }
-                        },
-                        _ => ArgType::Other,
+                            ArgType::Other
+                        }
                     },
                     _ => ArgType::Other,
                 },
+                _ => ArgType::Other,
             }
         },
         _ => ArgType::Other,
