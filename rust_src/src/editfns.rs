@@ -366,7 +366,7 @@ pub fn propertize(args: &mut [LispObject]) -> LispObject {
 
     let copy = LispObject::from_raw(unsafe { Fcopy_sequence(first.to_raw()) });
 
-    // this is a C style Lisp_Object because that is what Fcons expects and returns.
+    // this is a C style LispObject because that is what Fcons expects and returns.
     // Once Fcons is ported to Rust this can be migrated to a LispObject.
     let mut properties = Qnil;
 
