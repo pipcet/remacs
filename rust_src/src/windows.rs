@@ -5,6 +5,7 @@ use std::ptr;
 use libc::c_int;
 
 use remacs_macros::lisp_fn;
+use remacs_sys::Qnil;
 use remacs_sys::{face_id, glyph_matrix, EmacsInt, Lisp_Type, Lisp_Window};
 use remacs_sys::{MODE_LINE_FACE_ID, MODE_LINE_INACTIVE_FACE_ID};
 use remacs_sys::{Qceiling, Qfloor, Qheader_line_format, Qmode_line_format, Qnone};
@@ -336,7 +337,7 @@ pub fn window_buffer(window: LispObject) -> LispObject {
     if win.is_live() {
         win.contents()
     } else {
-        LispObject::constant_nil()
+        Qnil
     }
 }
 
@@ -377,7 +378,7 @@ pub fn window_margins(window: LispObject) -> LispObject {
         if margin != 0 {
             LispObject::from_fixnum(EmacsInt::from(margin))
         } else {
-            LispObject::constant_nil()
+            Qnil
         }
     }
     let win = window_live_or_selected(window);
@@ -430,7 +431,7 @@ pub fn minibuffer_selected_window() -> LispObject {
     {
         current_minibuf
     } else {
-        LispObject::constant_nil()
+        Qnil
     }
 }
 

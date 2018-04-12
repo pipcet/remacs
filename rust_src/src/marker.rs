@@ -5,6 +5,7 @@ use std::mem;
 use std::ptr;
 
 use remacs_macros::lisp_fn;
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::{BoolBF, EmacsInt, Lisp_Buffer, Lisp_Marker};
 use remacs_sys::{buf_charpos_to_bytepos, mget_buffer, mget_bytepos, mget_charpos,
                  mget_insertion_type, mget_next_marker, mset_buffer, mset_insertion_type,
@@ -200,7 +201,7 @@ pub fn copy_marker(marker: LispObject, itype: LispObject) -> LispObject {
     let buffer_or_nil = marker
         .as_marker()
         .and_then(|m| m.buffer())
-        .map_or(LispObject::constant_nil(), |b| b.as_lisp_obj());
+        .map_or(Qnil, |b| b.as_lisp_obj());
 
     set_marker(new, marker, buffer_or_nil);
     unsafe {

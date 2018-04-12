@@ -4,6 +4,7 @@ use std::{cmp, ptr};
 
 use remacs_lib::current_timespec;
 use remacs_macros::lisp_fn;
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::{EmacsDouble, EmacsInt, WAIT_READING_MAX};
 use remacs_sys::{dtotimespec, timespec_add, timespec_sub, wait_reading_process_output};
 
@@ -28,7 +29,7 @@ pub fn sleep_for(seconds: EmacsDouble, milliseconds: Option<EmacsInt>) -> () {
                     t.tv_nsec as i32,
                     0,
                     true,
-                    LispObject::constant_nil(),
+                    Qnil,
                     ptr::null(),
                     0,
                 )

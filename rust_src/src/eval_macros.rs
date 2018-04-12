@@ -103,7 +103,7 @@ macro_rules! args_out_of_range {
 macro_rules! list {
     ($arg:expr, $($tt:tt)+) => { $crate::lisp::LispObject::cons($arg, list!($($tt)+)) };
     ($arg:expr) => { $crate::lisp::LispObject::cons($arg, list!()) };
-    () => { $crate::lisp::LispObject::constant_nil() };
+    () => { $crate::sys::Qnil };
 }
 
 macro_rules! def_lisp_sym {

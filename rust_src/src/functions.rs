@@ -74,10 +74,10 @@ macro_rules! mock_multibyte_string {
 
 #[allow(unused_macros)]
 macro_rules! assert_t {
-    ($arg: expr) => {{ assert!($arg == ::lisp::LispObject::constant_t()); }};
+    ($arg: expr) => {{ assert!($arg == Qnil); }};
 }
 
 #[allow(unused_macros)]
 macro_rules! assert_nil {
-    ($arg: expr) => {{ assert!($arg == ::lisp::LispObject::constant_nil()); }};
+    ($arg: expr) => {{ assert!($arg == Qnil); }};
 }

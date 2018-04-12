@@ -8,6 +8,7 @@ use std;
 use std::slice;
 
 use remacs_macros::lisp_fn;
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::{make_specified_string, make_uninit_string, EmacsInt};
 use remacs_sys::{code_convert_string, extract_data_from_object, preferred_coding_system,
                  string_char_to_byte, validate_subarray, Fcoding_system_p};
@@ -109,7 +110,7 @@ fn get_coding_system_for_buffer(
         || LispObject::from_raw(unsafe {
             Flocal_variable_p(
                 Qbuffer_file_coding_system,
-                LispObject::constant_nil().to_raw(),
+                Qnil,
             )
         }).is_nil()) && LispObject::from_raw(buffer.enable_multibyte_characters).is_nil()
     {
@@ -142,10 +143,10 @@ fn get_coding_system_for_buffer(
             LispObject::from_natnum(start_byte as EmacsInt),
             LispObject::from_natnum(end_byte as EmacsInt),
             coding_system,
-            LispObject::constant_nil()
+            Qnil
         );
     }
-    LispObject::constant_nil()
+    Qnil
 }
 
 fn get_input_from_string(
@@ -254,7 +255,7 @@ fn get_input(
                     code_convert_string(
                         object.to_raw(),
                         coding_system.to_raw(),
-                        LispObject::constant_nil().to_raw(),
+                        Qnil,
                         true,
                         false,
                         true,
@@ -285,7 +286,7 @@ fn get_input(
                 code_convert_string(
                     s.to_raw(),
                     coding_system.to_raw(),
-                    LispObject::constant_nil().to_raw(),
+                    Qnil,
                     true,
                     false,
                     false,
@@ -340,7 +341,7 @@ pub fn md5(
         end,
         coding_system,
         noerror,
-        LispObject::constant_nil(),
+        Qnil
     )
 }
 
@@ -368,8 +369,8 @@ pub fn secure_hash(
         object,
         start,
         end,
-        LispObject::constant_nil(),
-        LispObject::constant_nil(),
+        Qnil,
+        Qnil,
         binary,
     )
 }
