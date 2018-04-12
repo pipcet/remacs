@@ -573,6 +573,7 @@ fn generate_globals() {
                         match vtype {
                             "EMACS_INT" => "EmacsInt",
                             "bool_bf" => "BoolBF",
+                            "Lisp_Object" => "LispObject",
                             t => t,
                         }
                     ).expect("Write error!");
