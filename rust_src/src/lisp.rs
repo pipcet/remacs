@@ -78,16 +78,6 @@ impl LispObject {
     pub fn from_float(v: EmacsDouble) -> LispObject {
         unsafe { make_float(v) }
     }
-
-    #[inline]
-    pub fn from_raw(i: LispObject) -> LispObject {
-        i
-    }
-
-    #[inline]
-    pub fn to_raw(self) -> LispObject {
-        self
-    }
 }
 
 impl<T> From<Option<T>> for LispObject
