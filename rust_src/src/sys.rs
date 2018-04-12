@@ -1,9 +1,3 @@
-#![cfg_attr(feature = "clippy", feature(plugin))]
-#![cfg_attr(feature = "clippy", plugin(clippy))]
-#![feature(const_size_of)]
-#![feature(repr_transparent)]
-#![allow(non_camel_case_types, non_snake_case, non_upper_case_globals)]
-
 //! This module contains all FFI declarations.
 //!
 //! These types and constants are generated at build time to mimic how they are
@@ -21,10 +15,9 @@
 
 extern crate libc;
 
-pub mod libm;
-
 use libc::{c_char, c_double, c_float, c_int, c_short, c_uchar, c_void, intmax_t, off_t, ptrdiff_t,
            size_t, time_t, timespec};
+use std;
 
 // libc prefers not to merge pid_t as an alias for c_int in Windows, so we will not use libc::pid_t
 // and alias it ourselves.

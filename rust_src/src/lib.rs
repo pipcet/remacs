@@ -2,14 +2,19 @@
 #![cfg_attr(feature = "clippy", plugin(clippy))]
 #![cfg_attr(feature = "clippy", allow(not_unsafe_ptr_arg_deref, wrong_self_convention))]
 #![feature(const_fn)]
+#![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 #![allow(non_snake_case)]
 #![allow(private_no_mangle_fns)]
+#![allow(dead_code)]
+#![allow(unused)]
 #![feature(proc_macro)]
 #![cfg_attr(feature = "strict", deny(warnings))]
 #![feature(global_allocator)]
 #![feature(concat_idents)]
+#![feature(const_size_of)]
 #![feature(stmt_expr_attributes)]
+#![feature(repr_transparent)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -28,8 +33,10 @@ extern crate alloc_unexecmacosx;
 // Needed for linking.
 extern crate remacs_lib;
 extern crate remacs_macros;
-extern crate remacs_sys;
 
+mod sys;
+pub mod libm;
+use sys as remacs_sys;
 #[cfg(test)]
 extern crate mock_derive;
 
