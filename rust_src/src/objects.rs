@@ -46,8 +46,8 @@ pub fn equal(o1: LispObject, o2: LispObject) -> bool {
 pub fn equal_including_properties(o1: LispObject, o2: LispObject) -> bool {
     unsafe {
         internal_equal(
-            o1.to_raw(),
-            o2.to_raw(),
+            o1,
+            o2,
             EqualKind::IncludingProperties,
             0,
             Qnil,

@@ -126,7 +126,7 @@ impl LispSubCharTableRef {
 
         if is_uniprop && uniprop_compressed_form_p(val) {
             val = unsafe {
-                uniprop_table_uncompress(self.as_lisp_obj().to_raw(), idx as libc::c_int)
+                uniprop_table_uncompress(self.as_lisp_obj(), idx as libc::c_int)
             };
         }
 
@@ -176,9 +176,9 @@ pub fn set_char_table_parent(
     }
 
     chartable.parent = if let Some(p) = parent {
-        p.as_lisp_obj().to_raw()
+        p.as_lisp_obj()
     } else {
-        LispObject::constant_nil().to_raw()
+        LispObject::constant_nil()
     };
     //parent
 }

@@ -20,13 +20,13 @@ pub extern "C" fn merge(l1: LispObject, l2: LispObject, pred: LispObject) -> Lis
         l2,
         pred,
     );
-    result.to_raw()
+    result
 }
 
 #[no_mangle]
 pub extern "C" fn indirect_function(object: LispObject) -> LispObject {
     let result = data::indirect_function(object);
-    result.to_raw()
+    result
 }
 
 #[no_mangle]
@@ -40,7 +40,7 @@ pub extern "C" fn arithcompare(
         obj2,
         comparison,
     );
-    LispObject::from(result).to_raw()
+    LispObject::from(result)
 }
 
 #[no_mangle]

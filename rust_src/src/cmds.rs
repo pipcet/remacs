@@ -190,7 +190,7 @@ pub fn forward_line(n: Option<EmacsInt>) -> EmacsInt {
 }
 
 pub fn initial_keys() {
-    let global_map = current_global_map().to_raw();
+    let global_map = current_global_map();
 
     unsafe {
         let A = CString::new("beginning-of-line").unwrap();
@@ -232,7 +232,7 @@ pub fn delete_char(n: EmacsInt, killflag: bool) -> () {
             unsafe { del_range(buffer.pt(), pos) };
         }
     } else {
-        call_raw!(Qkill_forward_chars, LispObject::from(n).to_raw());
+        call_raw!(Qkill_forward_chars, LispObject::from(n));
     }
 }
 

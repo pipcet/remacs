@@ -165,7 +165,7 @@ pub fn point_max() -> EmacsInt {
 #[lisp_fn(intspec = "NGoto char: ")]
 pub fn goto_char(position: LispObject) -> LispObject {
     if position.is_marker() {
-        set_point_from_marker(position.to_raw());
+        set_point_from_marker(position);
     } else if let Some(num) = position.as_fixnum() {
         let cur_buf = ThreadState::current_buffer();
         let pos = clip_to_bounds(cur_buf.begv, num, cur_buf.zv);
@@ -361,10 +361,10 @@ pub fn propertize(args: &mut [LispObject]) -> LispObject {
     let mut it = args.iter();
 
     // the unwrap call is safe, the number of args has already been checked
-    let first = it.next().unwrap();
+    let first = *it.next().unwrap();
     let orig_string = first.as_string_or_error();
 
-    let copy = unsafe { Fcopy_sequence(first.to_raw()) };
+    let copy = unsafe { Fcopy_sequence(first) };
 
     // this is a C style LispObject because that is what Fcons expects and returns.
     // Once Fcons is ported to Rust this can be migrated to a LispObject.
@@ -372,15 +372,15 @@ pub fn propertize(args: &mut [LispObject]) -> LispObject {
 
     while let Some(a) = it.next() {
         let b = it.next().unwrap(); // safe due to the odd check at the beginning
-        properties = unsafe { Fcons(a.to_raw(), Fcons(b.to_raw(), properties)) };
+        properties = unsafe { Fcons(*a, Fcons(*b, properties)) };
     }
 
     unsafe {
         Fadd_text_properties(
-            LispObject::from_natnum(0).to_raw(),
-            LispObject::from_natnum(orig_string.len_chars() as EmacsInt).to_raw(),
+            LispObject::from_natnum(0),
+            LispObject::from_natnum(orig_string.len_chars() as EmacsInt),
             properties,
-            copy.to_raw(),
+            copy,
         );
     };
 
@@ -516,9 +516,9 @@ pub fn field_beginning(
     let mut beg = 0;
     unsafe {
         find_field(
-            LispObject::from(pos).to_raw(),
-            LispObject::from(escape_from_edge).to_raw(),
-            LispObject::from(limit).to_raw(),
+            LispObject::from(pos),
+            LispObject::from(escape_from_edge),
+            LispObject::from(limit),
             &mut beg,
             Qnil,
             ptr::null_mut(),
@@ -544,11 +544,11 @@ pub fn field_end(
     let mut end = 0;
     unsafe {
         find_field(
-            LispObject::from(pos).to_raw(),
-            LispObject::from(escape_from_edge).to_raw(),
+            LispObject::from(pos),
+            LispObject::from(escape_from_edge),
             Qnil,
             ptr::null_mut(),
-            LispObject::from(limit).to_raw(),
+            LispObject::from(limit),
             &mut end,
         );
     }
@@ -637,8 +637,8 @@ pub fn constrain_to_field(
             // `get_pos_property' as well.
             || (unsafe {
                 Fget_pos_property(
-                    LispObject::from(old_pos).to_raw(),
-                    inhibit_capture_property.to_raw(),
+                    LispObject::from(old_pos),
+                    inhibit_capture_property,
                     Qnil) == Qnil
             }
                 && (old_pos <= begv

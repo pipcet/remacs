@@ -177,9 +177,9 @@ pub fn set_marker_insertion_type(mut marker: LispMarkerRef, itype: LispObject) -
 pub fn set_marker(marker: LispObject, position: LispObject, buffer: LispObject) -> LispObject {
     unsafe {
         set_marker_internal(
-            marker.to_raw(),
-            position.to_raw(),
-            buffer.to_raw(),
+            marker,
+            position,
+            buffer,
             false,
         )
     }

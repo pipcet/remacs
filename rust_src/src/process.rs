@@ -65,17 +65,17 @@ impl LispProcessRef {
 
     #[inline]
     fn set_plist(&mut self, plist: LispObject) {
-        self.plist = plist.to_raw();
+        self.plist = plist;
     }
 
     #[inline]
     fn set_buffer(&mut self, buffer: LispObject) {
-        self.buffer = buffer.to_raw();
+        self.buffer = buffer;
     }
 
     #[inline]
     fn set_childp(&mut self, childp: LispObject) {
-        self.childp = childp.to_raw();
+        self.childp = childp;
     }
 }
 
@@ -231,7 +231,7 @@ pub fn process_status(process: LispObject) -> LispObject {
     let p = if process.is_string() {
         get_process(process)
     } else {
-        unsafe { cget_process(process.to_raw()) }
+        unsafe { cget_process(process) }
     };
     if p.is_nil() {
         return p;
@@ -278,7 +278,7 @@ pub fn set_process_buffer(process: LispObject, buffer: LispObject) -> LispObject
         let childp = p_ref.childp;
         p_ref.set_childp(plist_put(childp, QCbuffer, buffer));
     }
-    unsafe { setup_process_coding_systems(process.to_raw()) };
+    unsafe { setup_process_coding_systems(process) };
     buffer
 }
 
@@ -295,10 +295,10 @@ pub fn set_process_buffer(process: LispObject, buffer: LispObject) -> LispObject
 pub fn process_send_string(process: LispObject, string: LispStringRef) -> () {
     unsafe {
         send_process(
-            cget_process(process.to_raw()),
+            cget_process(process),
             string.data,
             STRING_BYTES(string.as_ptr()),
-            string.as_lisp_obj().to_raw(),
+            string.as_lisp_obj(),
         )
     };
 }

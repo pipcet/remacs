@@ -21,9 +21,9 @@ use lisp::defsubr;
 pub fn get_char_property(position: EmacsInt, prop: LispObject, object: LispObject) -> LispObject {
     unsafe {
         get_char_property_and_overlay(
-            LispObject::from(position).to_raw(),
-            prop.to_raw(),
-            object.to_raw(),
+            LispObject::from(position),
+            prop,
+            object,
             ptr::null_mut(),
         )
     }

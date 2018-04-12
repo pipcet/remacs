@@ -27,7 +27,7 @@ pub fn posn_at_point(pos: LispObject, window: LispObject) -> LispObject {
     let window = window_or_selected_unchecked(window);
 
     let tem = unsafe {
-        Fpos_visible_in_window_p(pos.to_raw(), window.to_raw(), Qt)
+        Fpos_visible_in_window_p(pos, window, Qt)
     };
     if tem.is_nil() {
         return LispObject::constant_nil();
@@ -99,8 +99,8 @@ pub fn posn_at_x_y(
     unsafe {
         make_lispy_position(
             frame.as_ptr(),
-            LispObject::from_fixnum(EmacsInt::from(x)).to_raw(),
-            LispObject::from_natnum(EmacsInt::from(y)).to_raw(),
+            LispObject::from_fixnum(EmacsInt::from(x)),
+            LispObject::from_natnum(EmacsInt::from(y)),
             0,
         )
     }

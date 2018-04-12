@@ -414,7 +414,7 @@ pub fn set_window_combination_limit(mut window: LispWindowRef, limit: LispObject
         error!("Combination limit is meaningful for internal windows only");
     }
 
-    window.combination_limit = limit.to_raw();
+    window.combination_limit = limit;
 
     limit
 }
@@ -557,7 +557,7 @@ pub fn set_window_parameter(
         unsafe {
             wset_window_parameters(
                 w.as_ptr(),
-                Fcons(Fcons(parameter.to_raw(), value.to_raw()), w_params),
+                Fcons(Fcons(parameter, value), w_params),
             )
         }
     } else {
@@ -661,9 +661,9 @@ pub fn window_list(
 
     unsafe {
         window_list_1(
-            w_obj.to_raw(),
-            minibuf.to_raw(),
-            f_obj.to_raw(),
+            w_obj,
+            minibuf,
+            f_obj,
         )
     }
 }
@@ -706,9 +706,9 @@ pub fn window_list_one(
 ) -> LispObject {
     unsafe {
         window_list_1(
-            window.to_raw(),
-            minibuf.to_raw(),
-            all_frames.to_raw(),
+            window,
+            minibuf,
+            all_frames,
         )
     }
 }
