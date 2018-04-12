@@ -135,7 +135,7 @@ pub fn marker_buffer(marker: LispMarkerRef) -> Option<LispBufferRef> {
 /// Set PT from MARKER's clipped position.
 #[no_mangle]
 pub extern "C" fn set_point_from_marker(marker: LispObject) {
-    let marker = LispObject::from_raw(marker).as_marker_or_error();
+    let marker = marker.as_marker_or_error();
     let cur_buf = ThreadState::current_buffer();
     let charpos = clip_to_bounds(
         cur_buf.begv,
@@ -176,12 +176,12 @@ pub fn set_marker_insertion_type(mut marker: LispMarkerRef, itype: LispObject) -
 #[lisp_fn(min = "2")]
 pub fn set_marker(marker: LispObject, position: LispObject, buffer: LispObject) -> LispObject {
     unsafe {
-        LispObject::from_raw(set_marker_internal(
+        set_marker_internal(
             marker.to_raw(),
             position.to_raw(),
             buffer.to_raw(),
             false,
-        ))
+        )
     }
 }
 
@@ -196,7 +196,7 @@ pub fn copy_marker(marker: LispObject, itype: LispObject) -> LispObject {
     if marker.is_not_nil() {
         marker.as_fixnum_coerce_marker_or_error();
     }
-    let new = unsafe { LispObject::from_raw(Fmake_marker()) };
+    let new = unsafe { Fmake_marker() };
     let buffer_or_nil = marker
         .as_marker()
         .and_then(|m| m.buffer())
@@ -286,7 +286,7 @@ pub extern "C" fn set_marker_both(
     charpos: ptrdiff_t,
     bytepos: ptrdiff_t,
 ) -> LispObject {
-    let mut m = LispObject::from_raw(marker).as_marker_or_error();
+    let mut m = marker.as_marker_or_error();
     let b = live_buffer(buffer);
     if !b.is_null() {
         attach_marker(m.as_mut(), b, charpos, bytepos);
@@ -304,7 +304,7 @@ pub extern "C" fn set_marker_restricted_both(
     charpos: ptrdiff_t,
     bytepos: ptrdiff_t,
 ) -> LispObject {
-    let mut m = LispObject::from_raw(marker).as_marker_or_error();
+    let mut m = marker.as_marker_or_error();
     let b = live_buffer(buffer);
 
     if !b.is_null() {
@@ -326,14 +326,14 @@ pub extern "C" fn set_marker_restricted_both(
 /// Return the char position of marker MARKER, as a C integer.
 #[no_mangle]
 pub extern "C" fn marker_position(marker: LispObject) -> ptrdiff_t {
-    let m = LispObject::from_raw(marker).as_marker_or_error();
+    let m = marker.as_marker_or_error();
     m.charpos_or_error()
 }
 
 /// Return the byte position of marker MARKER, as a C integer.
 #[no_mangle]
 pub extern "C" fn marker_byte_position(marker: LispObject) -> ptrdiff_t {
-    let m = LispObject::from_raw(marker).as_marker_or_error();
+    let m = marker.as_marker_or_error();
     m.bytepos_or_error()
 }
 
@@ -342,7 +342,7 @@ pub extern "C" fn marker_byte_position(marker: LispObject) -> ptrdiff_t {
 /// corresponding to BUFFER if BUFFER is live, or NULL otherwise.
 #[no_mangle]
 pub extern "C" fn live_buffer(buffer: LispObject) -> *mut Lisp_Buffer {
-    let mut b = LispObject::from_raw(buffer).as_buffer_or_current_buffer();
+    let mut b = buffer.as_buffer_or_current_buffer();
     if b.is_live() {
         b.as_mut()
     } else {

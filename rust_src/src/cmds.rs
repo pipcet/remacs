@@ -260,7 +260,7 @@ pub fn self_insert_command(n: EmacsInt) {
 
     // Barf if the key that invoked this was not a character.
     if !characterp(
-        LispObject::from_raw(unsafe { globals.f_last_command_event }),
+        unsafe { globals.f_last_command_event },
         LispObject::constant_nil(),
     ) {
         unsafe { bitch_at_user() };
@@ -268,7 +268,7 @@ pub fn self_insert_command(n: EmacsInt) {
         let character = unsafe {
             translate_char(
                 globals.f_Vtranslation_table_for_input,
-                LispObject::from_raw(globals.f_last_command_event).as_fixnum_or_error(),
+                globals.f_last_command_event.as_fixnum_or_error(),
             )
         };
         let val = unsafe { internal_self_insert(character, n) };

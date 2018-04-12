@@ -19,7 +19,6 @@ use math::ArithOp;
 /// TODO this is used from C in a few places; remove afterwards.
 #[no_mangle]
 pub extern "C" fn extract_float(f: LispObject) -> EmacsDouble {
-    let f = LispObject::from_raw(f);
     f.any_to_float_or_error()
 }
 

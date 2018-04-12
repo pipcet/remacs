@@ -104,8 +104,8 @@ pub fn gap_size() -> EmacsInt {
 /// If there is no region active, signal an error.
 fn region_limit(beginningp: bool) -> EmacsInt {
     let current_buf = ThreadState::current_buffer();
-    if LispObject::from_raw(unsafe { globals.f_Vtransient_mark_mode }).is_not_nil()
-        && LispObject::from_raw(unsafe { globals.f_Vmark_even_if_inactive }).is_nil()
+    if unsafe { globals.f_Vtransient_mark_mode }.is_not_nil()
+        && unsafe { globals.f_Vmark_even_if_inactive }.is_nil()
         && current_buf.mark_active().is_nil()
     {
         xsignal!(Qmark_inactive);
@@ -214,7 +214,7 @@ pub fn insert_byte(byte: EmacsInt, count: Option<EmacsInt>, inherit: bool) {
     }
     let buf = ThreadState::current_buffer();
     let toinsert =
-        if byte >= 128 && LispObject::from_raw(buf.enable_multibyte_characters).is_not_nil() {
+        if byte >= 128 && buf.enable_multibyte_characters.is_not_nil() {
             EmacsInt::from(raw_byte_codepoint(byte as c_uchar))
         } else {
             byte
@@ -364,7 +364,7 @@ pub fn propertize(args: &mut [LispObject]) -> LispObject {
     let first = it.next().unwrap();
     let orig_string = first.as_string_or_error();
 
-    let copy = LispObject::from_raw(unsafe { Fcopy_sequence(first.to_raw()) });
+    let copy = unsafe { Fcopy_sequence(first.to_raw()) };
 
     // this is a C style LispObject because that is what Fcons expects and returns.
     // Once Fcons is ported to Rust this can be migrated to a LispObject.
@@ -395,9 +395,9 @@ pub fn char_to_string(character: LispObject) -> LispObject {
     let mut buffer = [0_u8; MAX_MULTIBYTE_LENGTH];
     let len = write_codepoint(&mut buffer[..], c);
 
-    LispObject::from_raw(unsafe {
+    unsafe {
         make_string_from_bytes(buffer.as_ptr() as *const i8, 1, len as isize)
-    })
+    }
 }
 
 /// Convert arg BYTE to a unibyte string containing that byte.
@@ -408,7 +408,7 @@ pub fn byte_to_string(byte: EmacsInt) -> LispObject {
     }
     let byte = byte as i8;
 
-    LispObject::from_raw(unsafe { make_string_from_bytes(&byte as *const i8, 1, 1) })
+    unsafe { make_string_from_bytes(&byte as *const i8, 1, 1) }
 }
 
 /// Return the first character in STRING.
@@ -610,11 +610,11 @@ pub fn constrain_to_field(
     if unsafe { globals.f_Vinhibit_field_text_motion == Qnil } && new_pos != old_pos
         && (get_char_property(
             new_pos,
-            LispObject::from_raw(Qfield),
+            Qfield,
             LispObject::constant_nil()).is_not_nil()
             || get_char_property(
                 old_pos,
-                LispObject::from_raw(Qfield),
+                Qfield,
                 LispObject::constant_nil()).is_not_nil()
             // To recognize field boundaries, we must also look at the
             // previous positions; we could use `Fget_pos_property'
@@ -623,12 +623,12 @@ pub fn constrain_to_field(
             || (new_pos > begv
                 && get_char_property(
                     prev_new,
-                    LispObject::from_raw(Qfield),
+                    Qfield,
                     LispObject::constant_nil()).is_not_nil())
             || (old_pos > begv
                 && get_char_property(
                     prev_old,
-                    LispObject::from_raw(Qfield),
+                    Qfield,
                     LispObject::constant_nil(),
                 ).is_not_nil()))
         && (inhibit_capture_property.is_nil()
