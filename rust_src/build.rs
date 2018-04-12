@@ -296,12 +296,6 @@ impl<'a> ModuleParser<'a> {
                 self.lineno,
                 "'no_mangle' functions exported for C need 'extern \"C\"' too.".to_string(),
             ))
-        } else if line.contains(": LispObject") || line.contains("-> LispObject") {
-            Err(LintMsg::new(
-                &self.info.name,
-                self.lineno,
-                "functions exported to C must use 'Lisp_Object' not 'LispObject'".to_string(),
-            ))
         } else {
             Ok(())
         }

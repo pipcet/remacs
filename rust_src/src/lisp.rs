@@ -63,7 +63,7 @@ use windows::LispWindowRef;
 /// Under casual systems, they're the type isize and usize respectively.
 #[repr(C)]
 #[derive(PartialEq, Eq, Clone, Copy)]
-pub struct LispObject(Lisp_Object);
+pub struct LispObject(EmacsInt);
 
 impl LispObject {
     #[inline]
@@ -96,12 +96,12 @@ impl LispObject {
     }
 
     #[inline]
-    pub fn from_raw(i: Lisp_Object) -> LispObject {
+    pub fn from_raw(i: LispObject) -> LispObject {
         LispObject(i)
     }
 
     #[inline]
-    pub fn to_raw(self) -> Lisp_Object {
+    pub fn to_raw(self) -> LispObject {
         self.0
     }
 }
@@ -190,7 +190,7 @@ impl LispObject {
             ((tag << VALBITS) + ptr) as EmacsInt
         };
 
-        LispObject::from_raw(Lisp_Object::from_C(res))
+        LispObject::from_raw(LispObject::from_C(res))
     }
 
     #[inline]
@@ -432,7 +432,7 @@ impl LispObject {
         } else {
             (n & INTMASK) as EmacsUint + ((Lisp_Type::Lisp_Int0 as EmacsUint) << VALBITS)
         };
-        LispObject::from_raw(Lisp_Object::from_C(o as EmacsInt))
+        LispObject::from_raw(LispObject::from_C(o as EmacsInt))
     }
 
     /// Convert a positive integer into its LispObject representation.
@@ -1034,14 +1034,14 @@ pub struct TailsIter {
     list: LispObject,
     tail: LispObject,
     tortoise: LispObject,
-    errsym: Option<Lisp_Object>,
+    errsym: Option<LispObject>,
     max: isize,
     n: isize,
     q: u16,
 }
 
 impl TailsIter {
-    fn new(list: LispObject, errsym: Option<Lisp_Object>) -> Self {
+    fn new(list: LispObject, errsym: Option<LispObject>) -> Self {
         Self {
             list,
             tail: list,
@@ -1110,7 +1110,7 @@ pub struct CarIter {
 }
 
 impl CarIter {
-    pub fn new(list: LispObject, errsym: Option<Lisp_Object>) -> Self {
+    pub fn new(list: LispObject, errsym: Option<LispObject>) -> Self {
         Self {
             tails: TailsIter::new(list, errsym),
         }
@@ -1593,7 +1593,7 @@ impl LispObject {
         self == other
     }
 
-    pub fn eq_raw(self, other: Lisp_Object) -> bool {
+    pub fn eq_raw(self, other: LispObject) -> bool {
         self.to_raw() == other
     }
 
