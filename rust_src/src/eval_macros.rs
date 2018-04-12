@@ -37,16 +37,6 @@ macro_rules! call {
         unsafe {
             ::remacs_sys::Ffuncall(argsarray.len() as ::libc::ptrdiff_t, argsarray.as_mut_ptr())
         }
-    }}
-}
-
-macro_rules! call_raw {
-    ($func:expr, $($arg:expr),*) => {{
-        let mut argsarray = [$func, $($arg),*];
-        #[allow(unused_unsafe)]
-        unsafe {
-            ::remacs_sys::Ffuncall(argsarray.len() as ::libc::ptrdiff_t, argsarray.as_mut_ptr())
-        }
     }};
     ($func:expr) => {{
         #[allow(unused_unsafe)]

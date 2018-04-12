@@ -716,7 +716,7 @@ pub fn get_file_buffer(filename: LispObject) -> Option<LispBufferRef> {
     };
 
     if handler.is_not_nil() {
-        let handled_buf = call_raw!(handler, Qget_file_buffer, filename);
+        let handled_buf = call!(handler, Qget_file_buffer, filename);
         handled_buf.as_buffer()
     } else {
         LiveBufferIter::new().find(|buf| {

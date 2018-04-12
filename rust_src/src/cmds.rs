@@ -214,7 +214,7 @@ pub fn initial_keys() {
 #[lisp_fn(min = "1", intspec = "p\nP")]
 pub fn delete_char(n: EmacsInt, killflag: bool) -> () {
     if n.abs() < 2 {
-        call_raw!(Qundo_auto_amalgamate);
+        call!(Qundo_auto_amalgamate);
     }
 
     let buffer = ThreadState::current_buffer();
@@ -232,7 +232,7 @@ pub fn delete_char(n: EmacsInt, killflag: bool) -> () {
             unsafe { del_range(buffer.pt(), pos) };
         }
     } else {
-        call_raw!(Qkill_forward_chars, LispObject::from(n));
+        call!(Qkill_forward_chars, LispObject::from(n));
     }
 }
 
@@ -255,7 +255,7 @@ pub fn self_insert_command(n: EmacsInt) {
     }
 
     if n < 2 {
-        call_raw!(Qundo_auto_amalgamate);
+        call!(Qundo_auto_amalgamate);
     }
 
     // Barf if the key that invoked this was not a character.
