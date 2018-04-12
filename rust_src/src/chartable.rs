@@ -53,7 +53,7 @@ impl LispCharTableRef {
     }
 
     pub fn is_uniprop(self) -> bool {
-        self.purpose == Qchar_code_property_table && self.extra_slots() == 5
+        self.purpose.eq(Qchar_code_property_table) && self.extra_slots() == 5
     }
 
     pub fn extra_slots(self) -> isize {

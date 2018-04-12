@@ -39,7 +39,7 @@ pub fn or(args: LispObject) -> LispObject {
 
     for elt in args.iter_cars_safe() {
         val = unsafe { eval_sub(elt) };
-        if val != Qnil {
+        if val.is_not_nil() {
             break;
         }
     }
@@ -57,7 +57,7 @@ pub fn and(args: LispObject) -> LispObject {
 
     for elt in args.iter_cars_safe() {
         val = unsafe { eval_sub(elt) };
-        if val == Qnil {
+        if val.is_nil() {
             break;
         }
     }
@@ -75,7 +75,7 @@ pub fn lisp_if(args: LispObject) -> LispObject {
     let cell = args.as_cons_or_error();
     let cond = unsafe { eval_sub(cell.car()) };
 
-    if cond != Qnil {
+    if cond.is_not_nil() {
         unsafe { eval_sub(cell.cdr().as_cons_or_error().car()) }
     } else {
         progn(cell.cdr().as_cons_or_error().cdr())
@@ -98,7 +98,7 @@ pub fn cond(args: LispObject) -> LispObject {
     for clause in args.iter_cars_safe() {
         let cell = clause.as_cons_or_error();
         val = unsafe { eval_sub(cell.car()) };
-        if val != Qnil {
+        if val.is_not_nil() {
             let tail = cell.cdr();
             if tail.is_not_nil() {
                 val = progn(tail);
@@ -180,11 +180,8 @@ pub fn setq(args: LispObject) -> LispObject {
         // Like for eval_sub, we do not check declared_special here since
         // it's been done when let-binding.
         // N.B. the check against nil is a mere optimization!
-        if unsafe { globals.f_Vinternal_interpreter_environment != Qnil } && sym.is_symbol() {
-            let binding = assq(
-                sym,
-                unsafe { globals.f_Vinternal_interpreter_environment },
-            );
+        if unsafe { globals.f_Vinternal_interpreter_environment }.is_not_nil() && sym.is_symbol() {
+            let binding = assq(sym, unsafe { globals.f_Vinternal_interpreter_environment });
             if let Some(binding) = binding.as_cons() {
                 lexical = true;
                 binding.set_cdr(val); /* SYM is lexically bound. */
@@ -217,7 +214,7 @@ pub fn function(args: LispObject) -> LispObject {
         );
     }
 
-    if unsafe { globals.f_Vinternal_interpreter_environment != Qnil } {
+    if unsafe { globals.f_Vinternal_interpreter_environment }.is_not_nil() {
         if let Some(cell) = quoted.as_cons() {
             let (first, mut cdr) = cell.as_tuple();
             if first.eq(Qlambda) {
@@ -307,14 +304,14 @@ pub fn defconst(args: LispObject) -> LispSymbolRef {
     };
 
     let mut tem = unsafe { eval_sub(car(cdr(args))) };
-    if unsafe { globals.f_Vpurify_flag } != Qnil {
+    if unsafe { globals.f_Vpurify_flag }.is_not_nil() {
         tem = unsafe { Fpurecopy(tem) };
     }
     unsafe { Fset_default(sym, tem) };
     let sym_ref = sym.as_symbol_or_error();
     sym_ref.set_declared_special(true);
     if docstring.is_not_nil() {
-        if unsafe { globals.f_Vpurify_flag } != Qnil {
+        if unsafe { globals.f_Vpurify_flag }.is_not_nil() {
             docstring = unsafe { Fpurecopy(docstring) };
         }
 
@@ -380,7 +377,7 @@ pub fn letX(args: LispCons) -> LispObject {
 
         let mut needs_bind = true;
 
-        if lexenv != Qnil {
+        if lexenv.is_not_nil() {
             if let Some(sym) = var.as_symbol() {
                 if !sym.get_declared_special() {
                     let bound = memq(
@@ -399,7 +396,7 @@ pub fn letX(args: LispCons) -> LispObject {
                                 globals.f_Vinternal_interpreter_environment,
                             );
 
-                            if globals.f_Vinternal_interpreter_environment == lexenv {
+                            if globals.f_Vinternal_interpreter_environment.eq(lexenv) {
                                 // Save the old lexical environment on the specpdl stack,
                                 // but only for the first lexical binding, since we'll never
                                 // need to revert to one of the intermediate ones.
@@ -444,7 +441,7 @@ pub fn lisp_let(args: LispCons) -> LispObject {
 
         let mut dyn_bind = true;
 
-        if lexenv != Qnil {
+        if lexenv.is_not_nil() {
             if let Some(sym) = var.as_symbol() {
                 if !sym.get_declared_special() {
                     let bound = memq(
@@ -471,7 +468,7 @@ pub fn lisp_let(args: LispCons) -> LispObject {
     }
 
     unsafe {
-        if lexenv != globals.f_Vinternal_interpreter_environment {
+        if !lexenv.eq(globals.f_Vinternal_interpreter_environment) {
             // Instantiate a new lexical environment.
             specbind(Qinternal_interpreter_environment, lexenv);
         }
@@ -490,7 +487,7 @@ pub fn lisp_let(args: LispCons) -> LispObject {
 pub fn lisp_while(args: LispCons) -> LispObject {
     let (test, body) = args.as_tuple();
 
-    while unsafe { eval_sub(test) } != Qnil {
+    while unsafe { eval_sub(test) }.is_not_nil() {
         unsafe { maybe_quit() };
 
         progn(body);
@@ -590,7 +587,7 @@ pub fn eval(form: LispObject, lexical: LispObject) -> LispObject {
 /// Apply fn to arg.
 #[no_mangle]
 pub extern "C" fn apply1(mut func: LispObject, arg: LispObject) -> LispObject {
-    if arg == Qnil {
+    if arg.is_nil() {
         unsafe { Ffuncall(1, &mut func) }
     } else {
         callN_raw!(Fapply, func, arg)
@@ -702,11 +699,11 @@ pub fn autoload(
     ty: LispObject,
 ) -> LispObject {
     // If function is defined and not as an autoload, don't override.
-    if function.function != Qnil && !is_autoload(function.function) {
+    if function.function.is_not_nil() && !is_autoload(function.function) {
         return Qnil;
     }
 
-    if unsafe { globals.f_Vpurify_flag != Qnil } && docstring.eq(LispObject::from_fixnum(0)) {
+    if unsafe { globals.f_Vpurify_flag.is_not_nil() } && docstring.eq(LispObject::from_fixnum(0)) {
         // `read1' in lread.c has found the docstring starting with "\
         // and assumed the docstring will be provided by Snarf-documentation, so it
         // passed us 0 instead.  But that leads to accidental sharing in purecopy's
@@ -826,7 +823,7 @@ pub fn autoload_do_load(
     unsafe {
         // This is to make sure that loadup.el gives a clear picture
         // of what files are preloaded and when.
-        if globals.f_Vpurify_flag != Qnil {
+        if globals.f_Vpurify_flag.is_not_nil() {
             error!(
                 "Attempt to autoload {} while preparing to dump",
                 sym.symbol_name().as_string_or_error()
@@ -938,7 +935,7 @@ fn run_hook_with_args_internal(
 ) -> LispObject {
     // If we are dying or still initializing,
     // don't do anything -- it would probably crash if we tried.
-    if unsafe { Vrun_hooks == Qnil } {
+    if unsafe { Vrun_hooks.eq(Qnil) } {
         return Qnil;
     }
 

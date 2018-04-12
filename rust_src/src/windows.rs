@@ -126,13 +126,13 @@ impl LispWindowRef {
         let qfloor = Qfloor;
         let qceiling = Qceiling;
 
-        if !(round == qfloor || round == qceiling) {
+        if !(round.eq(Qfloor) || round.eq(Qceiling)) {
             self.total_cols
         } else {
             let frame = self.frame().as_frame_or_error();
             let unit = frame.column_width();
 
-            if round == qceiling {
+            if round.eq(Qceiling) {
                 (self.pixel_width + unit - 1) / unit
             } else {
                 self.pixel_width / unit
@@ -141,16 +141,13 @@ impl LispWindowRef {
     }
 
     pub fn total_height(self, round: LispObject) -> i32 {
-        let qfloor = Qfloor;
-        let qceiling = Qceiling;
-
-        if !(round == qfloor || round == qceiling) {
+        if !(round.eq(Qfloor) || round.eq(Qceiling)) {
             self.total_lines
         } else {
             let frame = self.frame().as_frame_or_error();
             let unit = frame.line_height();
 
-            if round == qceiling {
+            if round.eq(Qceiling) {
                 (self.pixel_height + unit - 1) / unit
             } else {
                 self.pixel_height / unit

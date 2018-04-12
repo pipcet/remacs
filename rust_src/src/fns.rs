@@ -159,11 +159,7 @@ pub fn require(feature: LispObject, filename: LispObject, noerror: LispObject) -
         }
     }
 
-    if memq(
-        feature,
-        unsafe { globals.f_Vfeatures },
-    ).is_not_nil()
-    {
+    if memq(feature, unsafe { globals.f_Vfeatures }).is_not_nil() {
         return feature;
     }
 
@@ -171,7 +167,7 @@ pub fn require(feature: LispObject, filename: LispObject, noerror: LispObject) -
 
     // This is to make sure that loadup.el gives a clear picture
     // of what files are preloaded and when.
-    if unsafe { globals.f_Vpurify_flag != Qnil } {
+    if unsafe { globals.f_Vpurify_flag.is_not_nil() } {
         error!(
             "(require {}) while preparing to dump",
             feature_sym.symbol_name().as_string_or_error()
@@ -216,7 +212,7 @@ pub fn require(feature: LispObject, filename: LispObject, noerror: LispObject) -
         );
 
         // If load failed entirely, return nil.
-        if tem == Qnil {
+        if tem.is_nil() {
             return unbind_to(count, Qnil);
         }
     }

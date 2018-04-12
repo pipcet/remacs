@@ -392,7 +392,7 @@ pub fn buffer_list(frame: LispObject) -> LispObject {
 
             // Remove any buffer that duplicates one in
             // FRAMELIST or PREVLIST.
-            buffers.retain(|e| Fmember(*e, framelist) == Qnil || Fmember(*e, prevlist) == Qnil);
+            buffers.retain(|e| Fmember(*e, framelist).is_nil() || Fmember(*e, prevlist).is_nil());
 
             callN_raw!(
                 Fnconc,

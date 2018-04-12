@@ -1057,13 +1057,13 @@ impl Iterator for TailsIter {
                 self.tail = tail_cons.cdr();
                 self.q = self.q.wrapping_sub(1);
                 if self.q != 0 {
-                    if self.tail == self.tortoise {
+                    if self.tail.eq(self.tortoise) {
                         return self.circular();
                     }
                 } else {
                     self.n = self.n.wrapping_sub(1);
                     if self.n > 0 {
-                        if self.tail == self.tortoise {
+                        if self.tail.eq(self.tortoise) {
                             return self.circular();
                         }
                     } else {
@@ -1488,17 +1488,17 @@ impl LispObject {
 
     #[inline]
     pub fn is_nil(self) -> bool {
-        self == Qnil
+        self.eq(Qnil)
     }
 
     #[inline]
     pub fn is_not_nil(self) -> bool {
-        self != Qnil
+        !self.eq(Qnil)
     }
 
     #[inline]
     pub fn is_t(self) -> bool {
-        self == Qt
+        self.eq(Qt)
     }
 
     #[inline]
@@ -1564,13 +1564,13 @@ impl LispObject {
 
     #[inline]
     pub fn eq(self, other: LispObject) -> bool {
-        self == other
+        self.to_C() == other.to_C()
     }
 
     #[allow(dead_code)]
     #[inline]
     pub fn ne(self, other: LispObject) -> bool {
-        self != other
+        self.to_C() != other.to_C()
     }
 
     #[inline]

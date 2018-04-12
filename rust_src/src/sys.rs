@@ -24,7 +24,7 @@ use std;
 pub type pid_t = libc::c_int;
 
 #[repr(transparent)]
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(Clone, Copy)]
 pub struct LispObject(EmacsInt);
 
 impl LispObject {

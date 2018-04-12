@@ -309,7 +309,7 @@ pub fn preceding_char() -> EmacsInt {
         return EmacsInt::from(0);
     }
 
-    let pos = if buffer_ref.enable_multibyte_characters != Qnil {
+    let pos = if buffer_ref.enable_multibyte_characters.is_not_nil() {
         unsafe { dec_pos(buffer_ref.pt_byte) }
     } else {
         buffer_ref.pt_byte - 1
@@ -607,7 +607,7 @@ pub fn constrain_to_field(
     let prev_new = new_pos - 1;
     let begv = ThreadState::current_buffer().begv as EmacsInt;
 
-    if unsafe { globals.f_Vinhibit_field_text_motion == Qnil } && new_pos != old_pos
+    if unsafe { globals.f_Vinhibit_field_text_motion }.is_nil() && new_pos != old_pos
         && (get_char_property(
             new_pos,
             Qfield,
@@ -639,8 +639,8 @@ pub fn constrain_to_field(
                 Fget_pos_property(
                     LispObject::from(old_pos),
                     inhibit_capture_property,
-                    Qnil) == Qnil
-            }
+                    Qnil)
+            }.is_nil()
                 && (old_pos <= begv
                     || get_char_property(
                         old_pos,

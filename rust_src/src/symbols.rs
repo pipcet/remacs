@@ -286,7 +286,7 @@ pub fn makunbound(symbol: LispObject) -> LispSymbolRef {
 pub fn symbol_value(symbol: LispObject) -> LispObject {
     let raw_symbol = symbol;
     let val = unsafe { find_symbol_value(raw_symbol) };
-    if val == Qunbound {
+    if val.eq(Qunbound) {
         xsignal!(Qvoid_variable, symbol);
     }
     val

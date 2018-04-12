@@ -44,7 +44,7 @@ pub fn indirect_function(object: LispObject) -> LispObject {
         }
         hare = hare.as_symbol_or_error().get_function();
         tortoise = tortoise.as_symbol_or_error().get_function();
-        if hare == tortoise {
+        if hare.eq(tortoise) {
             xsignal!(Qcyclic_function_indirection, object);
         }
     }
@@ -245,16 +245,16 @@ pub fn defalias(sym: LispObject, mut definition: LispObject, docstring: LispObje
     let symbol = sym.as_symbol_or_error();
 
     unsafe {
-        if globals.f_Vpurify_flag != Qnil
+        if globals.f_Vpurify_flag.is_not_nil()
             // If `definition' is a keymap, immutable (and copying) is wrong.
-            && get_keymap(definition, false, false) == Qnil
+            && get_keymap(definition, false, false).is_nil()
         {
             definition = Fpurecopy(definition);
         }
     }
 
     let autoload = is_autoload(definition);
-    if unsafe { globals.f_Vpurify_flag == Qnil } || !autoload {
+    if unsafe { globals.f_Vpurify_flag }.is_nil() || !autoload {
         // Only add autoload entries after dumping, because the ones before are
         // not useful and else we get loads of them from the loaddefs.el.
 
