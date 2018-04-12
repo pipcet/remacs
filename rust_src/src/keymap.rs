@@ -95,24 +95,24 @@ pub extern "C" fn get_keymap(
         }
 
         if let Some(cons) = object.as_cons() {
-            if cons.car().eq_raw(Qkeymap) {
+            if cons.car().eq(Qkeymap) {
                 return object;
             }
         }
 
         let tem = indirect_function(object);
         if let Some(cons) = tem.as_cons() {
-            if cons.car().eq_raw(Qkeymap) {
+            if cons.car().eq(Qkeymap) {
                 return tem;
             }
 
             // Should we do an autoload?  Autoload forms for keymaps have
             // Qkeymap as their fifth element.
-            if (autoload || !error_if_not_keymap) && cons.car().eq_raw(Qautoload)
+            if (autoload || !error_if_not_keymap) && cons.car().eq(Qautoload)
                 && object.is_symbol()
             {
                 let tail = nth(4, tem);
-                if tail.eq_raw(Qkeymap) {
+                if tail.eq(Qkeymap) {
                     if autoload {
                         autoload_do_load(tem, object, LispObject::constant_nil());
                         autoload_retry = true;
@@ -327,7 +327,7 @@ pub extern "C" fn map_keymap_internal(
         None => LispObject::constant_nil(),
         Some(cons) => {
             let (car, cdr) = cons.as_tuple();
-            if car.eq_raw(Qkeymap) {
+            if car.eq(Qkeymap) {
                 cdr
             } else {
                 map
@@ -338,7 +338,7 @@ pub extern "C" fn map_keymap_internal(
     let mut parent = tail;
     for tail_cons in tail.iter_tails_safe() {
         let binding = tail_cons.car();
-        if binding.eq_raw(Qkeymap) {
+        if binding.eq(Qkeymap) {
             break;
         } else {
             // An embedded parent.
