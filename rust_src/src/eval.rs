@@ -1,7 +1,7 @@
 //! Generic Lisp eval functions
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{EmacsInt, LispObject, PseudovecType};
+use remacs_sys::{EmacsInt, PseudovecType};
 use remacs_sys::{Fapply, Fcons, Fdefault_value, Ffset, Ffuncall, Fload, Fpurecopy, Fset,
                  Fset_default};
 use remacs_sys::{QCdocumentation, Qautoload, Qclosure, Qerror, Qfunction, Qinteractive,

@@ -5,7 +5,6 @@ use remacs_sys::{Fcons, Fload, Fmapc};
 use remacs_sys::{Qfuncall, Qlistp, Qnil, Qprovide, Qquote, Qrequire, Qsubfeatures, Qt,
                  Qwrong_number_of_arguments};
 use remacs_sys::{globals, record_unwind_protect, unbind_to};
-use remacs_sys::LispObject;
 use remacs_sys::Vautoload_queue;
 
 use eval::un_autoload;

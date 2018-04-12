@@ -5,7 +5,7 @@ use std::mem;
 use std::ptr;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{BoolBF, EmacsInt, Lisp_Buffer, Lisp_Marker, LispObject};
+use remacs_sys::{BoolBF, EmacsInt, Lisp_Buffer, Lisp_Marker};
 use remacs_sys::{buf_charpos_to_bytepos, mget_buffer, mget_bytepos, mget_charpos,
                  mget_insertion_type, mget_next_marker, mset_buffer, mset_insertion_type,
                  mset_next_marker, set_marker_internal, set_point_both, unchain_marker,

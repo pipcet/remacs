@@ -7,7 +7,7 @@ use libc::timespec as c_timespec;
 
 use remacs_lib::current_timespec;
 use remacs_macros::lisp_fn;
-use remacs_sys::{lisp_time, EmacsInt, LispObject};
+use remacs_sys::{lisp_time, EmacsInt};
 use remacs_sys::MOST_NEGATIVE_FIXNUM;
 
 use lisp::LispObject;

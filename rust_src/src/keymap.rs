@@ -6,7 +6,7 @@ use std::ptr;
 use libc::c_void;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{current_global_map as _current_global_map, globals, EmacsInt, LispObject,
+use remacs_sys::{current_global_map as _current_global_map, globals, EmacsInt,
                  CHAR_META};
 use remacs_sys::{Fcons, Fevent_convert_list, Ffset, Fmake_char_table, Fpurecopy, Fset};
 use remacs_sys::{Qautoload, Qkeymap, Qkeymapp, Qnil, Qt};

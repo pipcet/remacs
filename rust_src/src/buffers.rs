@@ -4,7 +4,7 @@ use libc::{self, c_int, c_uchar, c_void, ptrdiff_t};
 use std::{self, mem, ptr};
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{EmacsInt, Lisp_Buffer, Lisp_Buffer_Local_Value, Lisp_Fwd, LispObject,
+use remacs_sys::{EmacsInt, Lisp_Buffer, Lisp_Buffer_Local_Value, Lisp_Fwd,
                  Lisp_Overlay, Lisp_Type, Vbuffer_alist, MOST_POSITIVE_FIXNUM};
 use remacs_sys::{Fcons, Fcopy_sequence, Fexpand_file_name, Ffind_file_name_handler,
                  Fget_text_property, Fnconc, Fnreverse};

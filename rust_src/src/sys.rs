@@ -24,7 +24,7 @@ use std;
 pub type pid_t = libc::c_int;
 
 #[repr(transparent)]
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub struct LispObject(EmacsInt);
 
 impl LispObject {
@@ -89,7 +89,7 @@ pub const WAIT_READING_MAX: i64 = std::i64::MAX;
 struct BitfieldPadding {
     _p1: u16,
     _p2: u16,
-    _p3: u32,
+  _p3: u32,
     _p4: u32,
 }
 

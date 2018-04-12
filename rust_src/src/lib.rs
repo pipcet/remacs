@@ -34,9 +34,6 @@ extern crate alloc_unexecmacosx;
 extern crate remacs_lib;
 extern crate remacs_macros;
 
-mod sys;
-pub mod libm;
-use sys as remacs_sys;
 #[cfg(test)]
 extern crate mock_derive;
 
@@ -47,7 +44,10 @@ mod functions;
 #[macro_use]
 mod eval_macros;
 #[macro_use]
-mod lisp;
+pub mod sys;
+pub mod lisp;
+pub mod libm;
+use sys as remacs_sys;
 #[macro_use]
 mod vector_macros;
 mod str2sig;

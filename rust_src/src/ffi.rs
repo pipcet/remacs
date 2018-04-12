@@ -1,5 +1,5 @@
 //! Module that is used for FFI exports.These calls should NOT be used in Rust directly.
-use remacs_sys::{LispObject, Lisp_Window};
+use remacs_sys::{Lisp_Window};
 
 use data;
 use keyboard;
