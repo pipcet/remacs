@@ -5,7 +5,6 @@ use std::ptr;
 use libc::c_int;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::Qnil;
 use remacs_sys::{face_id, glyph_matrix, EmacsInt, Lisp_Type, Lisp_Window};
 use remacs_sys::{MODE_LINE_FACE_ID, MODE_LINE_INACTIVE_FACE_ID};
 use remacs_sys::{Qceiling, Qfloor, Qheader_line_format, Qmode_line_format, Qnone};
@@ -16,6 +15,7 @@ use remacs_sys::{estimate_mode_line_height, is_minibuffer, minibuf_level,
                  window_menu_bar_p, window_parameter, window_tool_bar_p, wset_mode_line_height,
                  wset_window_parameters, window_list_1};
 use remacs_sys::Fcons;
+use remacs_sys::Qnil;
 use remacs_sys::globals;
 
 use editfns::point;
@@ -201,13 +201,14 @@ impl LispWindowRef {
     /// buffer's 'mode-line-format' value must be non-nil.  Finally, W must
     /// be higher than its frame's canonical character height.
     pub fn wants_mode_line(self) -> bool {
-        let window_mode_line_format =
-            unsafe { window_parameter(self.as_ptr(), Qmode_line_format) };
+        let window_mode_line_format = unsafe { window_parameter(self.as_ptr(), Qmode_line_format) };
 
         self.is_live() && !self.is_minibuffer() && !self.is_pseudo()
             && !window_mode_line_format.eq(Qnone)
             && (window_mode_line_format.is_not_nil()
-                || self.contents().as_buffer_or_error().mode_line_format
+                || self.contents()
+                    .as_buffer_or_error()
+                    .mode_line_format
                     .is_not_nil())
             && self.pixel_height() > self.frame().as_frame_or_error().line_height()
     }
@@ -233,7 +234,9 @@ impl LispWindowRef {
         self.is_live() && !self.is_minibuffer() && !self.is_pseudo()
             && !window_header_line_format.eq(Qnone)
             && (window_header_line_format.is_not_nil()
-                || self.contents().as_buffer_or_error().header_line_format
+                || self.contents()
+                    .as_buffer_or_error()
+                    .header_line_format
                     .is_not_nil()) && self.pixel_height() > height
     }
 }
@@ -552,12 +555,7 @@ pub fn set_window_parameter(
     let w_params = unsafe { wget_window_parameters(w.as_ptr()) };
     let old_alist_elt = assq(parameter, w_params);
     if old_alist_elt.is_nil() {
-        unsafe {
-            wset_window_parameters(
-                w.as_ptr(),
-                Fcons(Fcons(parameter, value), w_params),
-            )
-        }
+        unsafe { wset_window_parameters(w.as_ptr(), Fcons(Fcons(parameter, value), w_params)) }
     } else {
         setcdr(old_alist_elt.as_cons_or_error(), value);
     }
@@ -657,13 +655,7 @@ pub fn window_list(
         error!("Window is on a different frame");
     }
 
-    unsafe {
-        window_list_1(
-            w_obj,
-            minibuf,
-            f_obj,
-        )
-    }
+    unsafe { window_list_1(w_obj, minibuf, f_obj) }
 }
 
 /// Return a list of all live windows.
@@ -702,13 +694,7 @@ pub fn window_list_one(
     minibuf: LispObject,
     all_frames: LispObject,
 ) -> LispObject {
-    unsafe {
-        window_list_1(
-            window,
-            minibuf,
-            all_frames,
-        )
-    }
+    unsafe { window_list_1(window, minibuf, all_frames) }
 }
 
 include!(concat!(env!("OUT_DIR"), "/windows_exports.rs"));

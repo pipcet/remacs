@@ -1,8 +1,8 @@
 //! symbols support
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{Qnil, Qt};
 use remacs_sys::{Qcyclic_variable_indirection, Qsetting_constant, Qunbound, Qvoid_variable};
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::{symbol_redirect, SYMBOL_FORWARDED, SYMBOL_LOCALIZED, SYMBOL_PLAINVAL,
                  SYMBOL_VARALIAS};
 use remacs_sys::{find_symbol_value, get_symbol_declared_special, get_symbol_redirect,

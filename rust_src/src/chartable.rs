@@ -5,8 +5,8 @@ use std::ptr;
 use libc;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{Qnil, Qt};
 use remacs_sys::{ChartabSize, Lisp_Char_Table, Lisp_Sub_Char_Table, Lisp_Type};
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::PSEUDOVECTOR_SIZE_MASK;
 use remacs_sys::Qchar_code_property_table;
 use remacs_sys::uniprop_table_uncompress;
@@ -71,10 +71,7 @@ impl LispCharTableRef {
         } else {
             let tmp = self.contents
                 .get(chartab_idx(c, 0, 0) as usize)
-                .map_or_else(
-                    || error!("Index out of range"),
-                    |tmp| *tmp,
-                );
+                .map_or_else(|| error!("Index out of range"), |tmp| *tmp);
             if let Some(sub) = tmp.as_sub_char_table() {
                 sub.get(c, self.is_uniprop())
             } else {
@@ -126,9 +123,7 @@ impl LispSubCharTableRef {
         let mut val = self._get(idx);
 
         if is_uniprop && uniprop_compressed_form_p(val) {
-            val = unsafe {
-                uniprop_table_uncompress(self.as_lisp_obj(), idx as libc::c_int)
-            };
+            val = unsafe { uniprop_table_uncompress(self.as_lisp_obj(), idx as libc::c_int) };
         }
 
         if let Some(sub) = val.as_sub_char_table() {

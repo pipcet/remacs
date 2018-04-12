@@ -1,9 +1,9 @@
 //! Operations on lists.
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{Qnil, Qt};
 use remacs_sys::{EmacsInt, EmacsUint};
 use remacs_sys::{Qcircular_list, Qplistp};
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::globals;
 
 use lisp::{LispCons, LispObject};
@@ -82,21 +82,13 @@ pub fn cdr(list: LispObject) -> LispObject {
 /// Return the car of OBJECT if it is a cons cell, or else nil.
 #[lisp_fn]
 pub fn car_safe(object: LispObject) -> LispObject {
-    object
-        .as_cons()
-        .map_or(Qnil, |cons| {
-            cons.car()
-        })
+    object.as_cons().map_or(Qnil, |cons| cons.car())
 }
 
 /// Return the cdr of OBJECT if it is a cons cell, or else nil.
 #[lisp_fn]
 pub fn cdr_safe(object: LispObject) -> LispObject {
-    object
-        .as_cons()
-        .map_or(Qnil, |cons| {
-            cons.cdr()
-        })
+    object.as_cons().map_or(Qnil, |cons| cons.cdr())
 }
 
 /// Take cdr N times on LIST, return the result.
@@ -121,9 +113,7 @@ pub fn nth(n: EmacsInt, list: LispObject) -> LispObject {
     if n < 0 {
         car(list)
     } else {
-        list.iter_cars_safe()
-            .nth(n as usize)
-            .unwrap_or(Qnil)
+        list.iter_cars_safe().nth(n as usize).unwrap_or(Qnil)
     }
 }
 
@@ -406,17 +396,13 @@ pub fn put(symbol: LispObject, propname: LispObject, value: LispObject) -> LispO
 pub fn list(args: &mut [LispObject]) -> LispObject {
     args.iter()
         .rev()
-        .fold(Qnil, |list, &arg| {
-            LispObject::cons(arg, list)
-        })
+        .fold(Qnil, |list, &arg| LispObject::cons(arg, list))
 }
 
 /// Return a newly created list of length LENGTH, with each element being INIT.
 #[lisp_fn]
 pub fn make_list(length: EmacsUint, init: LispObject) -> LispObject {
-    (0..length).fold(Qnil, |list, _| {
-        LispObject::cons(init, list)
-    })
+    (0..length).fold(Qnil, |list, _| LispObject::cons(init, list))
 }
 
 /// Return the length of a list, but avoid error or infinite loop.

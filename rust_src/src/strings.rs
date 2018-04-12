@@ -69,9 +69,8 @@ pub fn string_as_multibyte(string: LispStringRef) -> LispObject {
         &mut nbytes,
     );
 
-    let new_string = unsafe {
-        make_uninit_multibyte_string(nchars as EmacsInt, nbytes as EmacsInt)
-    };
+    let new_string =
+        unsafe { make_uninit_multibyte_string(nchars as EmacsInt, nbytes as EmacsInt) };
     let mut new_s = new_string.as_string().unwrap();
     unsafe {
         ptr::copy_nonoverlapping(

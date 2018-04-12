@@ -17,8 +17,8 @@ use std::slice;
 use remacs_sys::{font, EmacsDouble, EmacsInt, EmacsUint, EqualKind, Fcons, PseudovecType,
                  CHECK_IMPURE, INTMASK, INTTYPEBITS, MOST_NEGATIVE_FIXNUM, MOST_POSITIVE_FIXNUM,
                  USE_LSB_TAG, VALBITS, VALMASK};
-use remacs_sys::{Lisp_Cons, Lisp_Float, Lisp_Misc_Any, Lisp_Misc_Type, Lisp_Subr,
-                 Lisp_Symbol, Lisp_Type};
+use remacs_sys::{Lisp_Cons, Lisp_Float, Lisp_Misc_Any, Lisp_Misc_Type, Lisp_Subr, Lisp_Symbol,
+                 Lisp_Type};
 use remacs_sys::{Qarrayp, Qautoload, Qbufferp, Qchar_table_p, Qcharacterp, Qconsp, Qfloatp,
                  Qframe_live_p, Qframep, Qhash_table_p, Qinteger_or_marker_p, Qintegerp, Qlistp,
                  Qmarkerp, Qnil, Qnumber_or_marker_p, Qnumberp, Qoverlayp, Qplistp, Qprocessp,
@@ -61,7 +61,6 @@ use windows::LispWindowRef;
 ///
 /// Their definition are determined in a way consistent with Emacs C.
 /// Under casual systems, they're the type isize and usize respectively.
-
 pub use sys::LispObject;
 
 impl LispObject {
@@ -1728,12 +1727,7 @@ impl Debug for LispObject {
                 write!(f, "{}", self.as_fixnum().unwrap())?;
             }
             Lisp_Type::Lisp_Misc => {
-                write!(
-                    f,
-                    "#<MISC @ {:#X}: VAL({:#X})>",
-                    self_ptr,
-                    self.to_C()
-                )?;
+                write!(f, "#<MISC @ {:#X}: VAL({:#X})>", self_ptr, self.to_C())?;
             }
             Lisp_Type::Lisp_String => {
                 write!(f, "{:?}", display_string(*self))?;

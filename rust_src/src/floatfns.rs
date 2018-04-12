@@ -7,8 +7,7 @@ use libc;
 
 use libm;
 use remacs_macros::lisp_fn;
-use remacs_sys::{EmacsDouble, EmacsInt, EmacsUint, MOST_NEGATIVE_FIXNUM,
-                 MOST_POSITIVE_FIXNUM};
+use remacs_sys::{EmacsDouble, EmacsInt, EmacsUint, MOST_NEGATIVE_FIXNUM, MOST_POSITIVE_FIXNUM};
 use remacs_sys::{Qarith_error, Qinteger_or_marker_p, Qnumberp, Qrange_error};
 
 use lisp::{LispNumber, LispObject};

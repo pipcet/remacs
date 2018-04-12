@@ -4,8 +4,8 @@ use libc::{self, c_int, c_uchar, c_void, ptrdiff_t};
 use std::{self, mem, ptr};
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{EmacsInt, Lisp_Buffer, Lisp_Buffer_Local_Value, Lisp_Fwd,
-                 Lisp_Overlay, Lisp_Type, Vbuffer_alist, MOST_POSITIVE_FIXNUM};
+use remacs_sys::{EmacsInt, Lisp_Buffer, Lisp_Buffer_Local_Value, Lisp_Fwd, Lisp_Overlay,
+                 Lisp_Type, Vbuffer_alist, MOST_POSITIVE_FIXNUM};
 use remacs_sys::{Fcons, Fcopy_sequence, Fexpand_file_name, Ffind_file_name_handler,
                  Fget_text_property, Fnconc, Fnreverse};
 use remacs_sys::{Qbuffer_read_only, Qget_file_buffer, Qinhibit_read_only, Qnil, Qunbound,
@@ -439,10 +439,9 @@ pub fn get_buffer(buffer_or_name: LispObject) -> LispObject {
         buffer_or_name
     } else {
         buffer_or_name.as_string_or_error();
-        cdr(assoc_ignore_text_properties(
-            buffer_or_name,
-            unsafe { Vbuffer_alist },
-        ))
+        cdr(assoc_ignore_text_properties(buffer_or_name, unsafe {
+            Vbuffer_alist
+        }))
     }
 }
 
@@ -576,11 +575,8 @@ pub fn set_buffer(buffer_or_name: LispObject) -> LispObject {
 pub fn barf_if_buffer_read_only(position: Option<EmacsInt>) -> () {
     let pos = position.unwrap_or_else(point);
 
-    let inhibit_read_only: bool =
-        unsafe { globals.f_Vinhibit_read_only.into() };
-    let prop = unsafe {
-        Fget_text_property(LispObject::from(pos), Qinhibit_read_only, Qnil)
-    };
+    let inhibit_read_only: bool = unsafe { globals.f_Vinhibit_read_only.into() };
+    let prop = unsafe { Fget_text_property(LispObject::from(pos), Qinhibit_read_only, Qnil) };
 
     if ThreadState::current_buffer().is_read_only() && !inhibit_read_only && prop.is_nil() {
         xsignal!(Qbuffer_read_only, current_buffer())
@@ -608,9 +604,8 @@ pub extern "C" fn nsberror(spec: LispObject) -> ! {
 #[lisp_fn]
 pub fn overlay_lists() -> LispObject {
     let list_overlays = |ol: LispOverlayRef| -> LispObject {
-        let ol_list = ol.iter().fold(Qnil, |accum, n| unsafe {
-            Fcons(n.as_lisp_obj(), accum)
-        });
+        let ol_list = ol.iter()
+            .fold(Qnil, |accum, n| unsafe { Fcons(n.as_lisp_obj(), accum) });
         ol_list
     };
 
@@ -655,24 +650,14 @@ pub extern "C" fn record_buffer_markers(buffer: *mut Lisp_Buffer) {
         assert!(zv_marker.is_not_nil());
 
         let buffer = buffer_ref.as_lisp_obj();
-        set_marker_both(
-            pt_marker,
-            buffer,
-            buffer_ref.pt(),
-            buffer_ref.pt_byte(),
-        );
+        set_marker_both(pt_marker, buffer, buffer_ref.pt(), buffer_ref.pt_byte());
         set_marker_both(
             begv_marker,
             buffer,
             buffer_ref.begv(),
             buffer_ref.begv_byte(),
         );
-        set_marker_both(
-            zv_marker,
-            buffer,
-            buffer_ref.zv(),
-            buffer_ref.zv_byte(),
-        );
+        set_marker_both(zv_marker, buffer, buffer_ref.zv(), buffer_ref.zv_byte());
     }
 }
 
@@ -711,9 +696,7 @@ pub fn get_file_buffer(filename: LispObject) -> Option<LispBufferRef> {
 
     // If the file name has special constructs in it,
     // call the corresponding file handler.
-    let handler = unsafe {
-        Ffind_file_name_handler(filename, Qget_file_buffer)
-    };
+    let handler = unsafe { Ffind_file_name_handler(filename, Qget_file_buffer) };
 
     if handler.is_not_nil() {
         let handled_buf = call!(handler, Qget_file_buffer, filename);
@@ -731,8 +714,7 @@ pub fn get_file_buffer(filename: LispObject) -> Option<LispBufferRef> {
 /// is the default binding of the variable.
 #[lisp_fn(name = "buffer-local-value", c_name = "buffer_local_value")]
 pub fn buffer_local_value_lisp(variable: LispObject, buffer: LispObject) -> LispObject {
-    let result =
-        unsafe { buffer_local_value(variable, buffer) };
+    let result = unsafe { buffer_local_value(variable, buffer) };
 
     if result.eq(Qunbound) {
         xsignal!(Qvoid_variable, variable);

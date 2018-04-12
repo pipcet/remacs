@@ -8,13 +8,13 @@ use std;
 use std::slice;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{Qnil, Qt};
 use remacs_sys::{make_specified_string, make_uninit_string, EmacsInt};
 use remacs_sys::{code_convert_string, extract_data_from_object, preferred_coding_system,
                  string_char_to_byte, validate_subarray, Fcoding_system_p};
 use remacs_sys::{globals, Ffind_operation_coding_system, Flocal_variable_p};
 use remacs_sys::{Qbuffer_file_coding_system, Qcoding_system_error, Qmd5, Qraw_text, Qsha1,
                  Qsha224, Qsha256, Qsha384, Qsha512, Qstringp, Qwrite_region};
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::{current_thread, make_buffer_string, record_unwind_current_buffer,
                  set_buffer_internal};
 
@@ -106,26 +106,16 @@ fn get_coding_system_for_buffer(
     if unsafe { globals.f_Vcoding_system_for_write }.is_not_nil() {
         return unsafe { globals.f_Vcoding_system_for_write };
     }
-    if (buffer.buffer_file_coding_system.is_nil()
-        || unsafe {
-            Flocal_variable_p(
-                Qbuffer_file_coding_system,
-                Qnil,
-            )
-        }.is_nil()) && buffer.enable_multibyte_characters.is_nil()
+    if (buffer.buffer_file_coding_system.is_nil() || unsafe {
+        Flocal_variable_p(Qbuffer_file_coding_system, Qnil)
+    }.is_nil()) && buffer.enable_multibyte_characters.is_nil()
     {
         return Qraw_text;
     }
     if buffer_file_name(object).is_not_nil() {
         /* Check file-coding-system-alist. */
-        let mut args = [
-            Qwrite_region,
-            start,
-            end,
-            buffer_file_name(object),
-        ];
-        let val =
-            unsafe { Ffind_operation_coding_system(4, args.as_mut_ptr()) };
+        let mut args = [Qwrite_region, start, end, buffer_file_name(object)];
+        let val = unsafe { Ffind_operation_coding_system(4, args.as_mut_ptr()) };
         if val.is_cons() && val.as_cons_or_error().cdr().is_not_nil() {
             return val.as_cons_or_error().cdr();
         }
@@ -163,14 +153,7 @@ fn get_input_from_string(
 
     size = string.len_bytes();
     unsafe {
-        validate_subarray(
-            object,
-            start,
-            end,
-            size,
-            &mut start_char,
-            &mut end_char,
-        );
+        validate_subarray(object, start, end, size, &mut start_char, &mut end_char);
     }
     start_byte = if start_char == 0 {
         0
@@ -251,16 +234,8 @@ fn get_input(
                 noerror,
             );
             *string = Some(
-                unsafe {
-                    code_convert_string(
-                        object,
-                        coding_system,
-                        Qnil,
-                        true,
-                        false,
-                        true,
-                    )
-                }.as_string_or_error(),
+                unsafe { code_convert_string(object, coding_system, Qnil, true, false, true) }
+                    .as_string_or_error(),
             )
         }
         get_input_from_string(object, string.unwrap(), start, end).as_string_or_error()
@@ -282,16 +257,8 @@ fn get_input(
                 ),
                 noerror,
             );
-            unsafe {
-                code_convert_string(
-                    s,
-                    coding_system,
-                    Qnil,
-                    true,
-                    false,
-                    false,
-                )
-            }.as_string_or_error()
+            unsafe { code_convert_string(s, coding_system, Qnil, true, false, false) }
+                .as_string_or_error()
         } else {
             ss
         }
@@ -341,7 +308,7 @@ pub fn md5(
         end,
         coding_system,
         noerror,
-        Qnil
+        Qnil,
     )
 }
 
@@ -364,15 +331,7 @@ pub fn secure_hash(
     end: LispObject,
     binary: LispObject,
 ) -> LispObject {
-    _secure_hash(
-        hash_alg(algorithm),
-        object,
-        start,
-        end,
-        Qnil,
-        Qnil,
-        binary,
-    )
+    _secure_hash(hash_alg(algorithm), object, start, end, Qnil, Qnil, binary)
 }
 
 fn _secure_hash(

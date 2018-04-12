@@ -104,9 +104,9 @@ pub fn gap_size() -> EmacsInt {
 /// If there is no region active, signal an error.
 fn region_limit(beginningp: bool) -> EmacsInt {
     let current_buf = ThreadState::current_buffer();
-    if unsafe { globals.f_Vtransient_mark_mode }.is_not_nil()
-        && unsafe { globals.f_Vmark_even_if_inactive }.is_nil()
-        && current_buf.mark_active().is_nil()
+    if unsafe { globals.f_Vtransient_mark_mode }.is_not_nil() && unsafe {
+        globals.f_Vmark_even_if_inactive
+    }.is_nil() && current_buf.mark_active().is_nil()
     {
         xsignal!(Qmark_inactive);
     }
@@ -213,12 +213,11 @@ pub fn insert_byte(byte: EmacsInt, count: Option<EmacsInt>, inherit: bool) {
         )
     }
     let buf = ThreadState::current_buffer();
-    let toinsert =
-        if byte >= 128 && buf.enable_multibyte_characters.is_not_nil() {
-            EmacsInt::from(raw_byte_codepoint(byte as c_uchar))
-        } else {
-            byte
-        };
+    let toinsert = if byte >= 128 && buf.enable_multibyte_characters.is_not_nil() {
+        EmacsInt::from(raw_byte_codepoint(byte as c_uchar))
+    } else {
+        byte
+    };
     insert_char(toinsert as Codepoint, count, inherit);
 }
 
@@ -395,9 +394,7 @@ pub fn char_to_string(character: LispObject) -> LispObject {
     let mut buffer = [0_u8; MAX_MULTIBYTE_LENGTH];
     let len = write_codepoint(&mut buffer[..], c);
 
-    unsafe {
-        make_string_from_bytes(buffer.as_ptr() as *const i8, 1, len as isize)
-    }
+    unsafe { make_string_from_bytes(buffer.as_ptr() as *const i8, 1, len as isize) }
 }
 
 /// Convert arg BYTE to a unibyte string containing that byte.
@@ -625,12 +622,7 @@ pub fn constrain_to_field(
                     prev_new,
                     Qfield,
                     Qnil).is_not_nil())
-            || (old_pos > begv
-                && get_char_property(
-                    prev_old,
-                    Qfield,
-                    Qnil,
-                ).is_not_nil()))
+            || (old_pos > begv && get_char_property(prev_old, Qfield, Qnil).is_not_nil()))
         && (inhibit_capture_property.is_nil()
             // Field boundaries are again a problem; but now we must
             // decide the case exactly, so we need to call

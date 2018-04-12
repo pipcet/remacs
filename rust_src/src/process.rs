@@ -1,7 +1,6 @@
 //! Functions operating on process.
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{Qnil, Qt};
 use remacs_sys::{EmacsInt, Lisp_Process, Lisp_Type, Vprocess_alist};
 use remacs_sys::{current_thread, get_process as cget_process, pget_kill_without_query, pget_pid,
                  pget_process_inherit_coding_system_flag, pget_raw_status_new,
@@ -9,6 +8,7 @@ use remacs_sys::{current_thread, get_process as cget_process, pget_kill_without_
                  update_status, Fmapcar, STRING_BYTES};
 use remacs_sys::{QCbuffer, Qcdr, Qclosed, Qexit, Qlistp, Qnetwork, Qopen, Qpipe, Qrun, Qserial,
                  Qstop};
+use remacs_sys::{Qnil, Qt};
 
 use lisp::{ExternalPtr, LispObject};
 use lisp::defsubr;
@@ -93,11 +93,7 @@ pub fn get_process(name: LispObject) -> LispObject {
         name
     } else {
         name.as_string_or_error();
-        cdr(assoc(
-            name,
-            unsafe { Vprocess_alist },
-            Qnil,
-        ))
+        cdr(assoc(name, unsafe { Vprocess_alist }, Qnil))
     }
 }
 
@@ -246,10 +242,7 @@ pub fn process_status(process: LispObject) -> LispObject {
         status = c.car();
     };
     let process_type = p_ref.process_type;
-    if process_type.eq(Qnetwork)
-        || process_type.eq(Qserial)
-        || process_type.eq(Qpipe)
-    {
+    if process_type.eq(Qnetwork) || process_type.eq(Qserial) || process_type.eq(Qpipe) {
         let process_command = p_ref.command;
         if status.eq(Qexit) {
             status = Qclosed;
@@ -272,10 +265,7 @@ pub fn set_process_buffer(process: LispObject, buffer: LispObject) -> LispObject
     }
     p_ref.set_buffer(buffer);
     let process_type = p_ref.process_type;
-    if process_type.eq(Qnetwork)
-        || process_type.eq(Qserial)
-        || process_type.eq(Qpipe)
-    {
+    if process_type.eq(Qnetwork) || process_type.eq(Qserial) || process_type.eq(Qpipe) {
         let childp = p_ref.childp;
         p_ref.set_childp(plist_put(childp, QCbuffer, buffer));
     }

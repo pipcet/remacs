@@ -1,5 +1,5 @@
 //! Module that is used for FFI exports.These calls should NOT be used in Rust directly.
-use remacs_sys::{Lisp_Window};
+use remacs_sys::Lisp_Window;
 
 use data;
 use keyboard;
@@ -15,11 +15,7 @@ pub extern "C" fn circular_list(obj: LispObject) -> ! {
 
 #[no_mangle]
 pub extern "C" fn merge(l1: LispObject, l2: LispObject, pred: LispObject) -> LispObject {
-    let result = lists::merge(
-        l1,
-        l2,
-        pred,
-    );
+    let result = lists::merge(l1, l2, pred);
     result
 }
 
@@ -35,11 +31,7 @@ pub extern "C" fn arithcompare(
     obj2: LispObject,
     comparison: math::ArithComparison,
 ) -> LispObject {
-    let result = math::arithcompare(
-        obj1,
-        obj2,
-        comparison,
-    );
+    let result = math::arithcompare(obj1, obj2, comparison);
     LispObject::from(result)
 }
 

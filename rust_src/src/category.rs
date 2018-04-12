@@ -10,9 +10,8 @@ use threads::ThreadState;
 /// Return t if ARG is a category table.
 #[lisp_fn]
 pub fn category_table_p(arg: LispObject) -> bool {
-    arg.as_char_table().map_or(false, |table| {
-        table.purpose.eq(Qcategory_table)
-    })
+    arg.as_char_table()
+        .map_or(false, |table| table.purpose.eq(Qcategory_table))
 }
 
 /// Return the current category table.

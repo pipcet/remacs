@@ -8,10 +8,10 @@ use libc::{c_char, c_uchar};
 use remacs_macros::lisp_fn;
 use remacs_sys::make_unibyte_string;
 
-use sys::LispObject;
 use lisp::defsubr;
 use multibyte::{multibyte_char_at, raw_byte_from_codepoint, LispStringRef, MAX_5_BYTE_CHAR};
 use strings::MIME_LINE_LENGTH;
+use sys::LispObject;
 
 #[no_mangle]
 pub extern "C" fn base64_encode_1(

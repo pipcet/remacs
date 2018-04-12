@@ -6,8 +6,7 @@ use std::ptr;
 use libc::c_void;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{current_global_map as _current_global_map, globals, EmacsInt,
-                 CHAR_META};
+use remacs_sys::{current_global_map as _current_global_map, globals, EmacsInt, CHAR_META};
 use remacs_sys::{Fcons, Fevent_convert_list, Ffset, Fmake_char_table, Fpurecopy, Fset};
 use remacs_sys::{Qautoload, Qkeymap, Qkeymapp, Qnil, Qt};
 use remacs_sys::{access_keymap, make_save_funcptr_ptr_obj, map_char_table, map_keymap_call,
@@ -85,7 +84,6 @@ pub extern "C" fn get_keymap(
     error_if_not_keymap: bool,
     autoload: bool,
 ) -> LispObject {
-
     let mut autoload_retry = true;
     while autoload_retry {
         autoload_retry = false;
@@ -108,8 +106,7 @@ pub extern "C" fn get_keymap(
 
             // Should we do an autoload?  Autoload forms for keymaps have
             // Qkeymap as their fifth element.
-            if (autoload || !error_if_not_keymap) && cons.car().eq(Qautoload)
-                && object.is_symbol()
+            if (autoload || !error_if_not_keymap) && cons.car().eq(Qautoload) && object.is_symbol()
             {
                 let tail = nth(4, tem);
                 if tail.eq(Qkeymap) {
@@ -304,13 +301,7 @@ pub fn map_keymap_lisp(function: LispObject, keymap: LispObject, sort_first: boo
     if sort_first {
         return call!(intern("map-keymap-sorted"), function, keymap);
     }
-    map_keymap(
-        keymap,
-        map_keymap_call,
-        function,
-        ptr::null_mut(),
-        true,
-    );
+    map_keymap(keymap, map_keymap_call, function, ptr::null_mut(), true);
     Qnil
 }
 
@@ -353,15 +344,7 @@ pub extern "C" fn map_keymap_internal(
                 if let Some(binding_vec) = binding.as_vectorlike() {
                     for c in 0..binding_vec.pseudovector_size() {
                         let character = LispObject::from_natnum(c);
-                        unsafe {
-                            map_keymap_item(
-                                fun,
-                                args,
-                                character,
-                                aref(binding, c),
-                                data,
-                            )
-                        };
+                        unsafe { map_keymap_item(fun, args, character, aref(binding, c), data) };
                     }
                 }
             } else if binding.is_char_table() {
@@ -392,12 +375,7 @@ pub extern "C" fn map_keymap_internal(
 #[lisp_fn(name = "map-keymap-internal")]
 pub fn map_keymap_internal_lisp(function: LispObject, mut keymap: LispObject) -> LispObject {
     keymap = get_keymap(keymap, true, true);
-    map_keymap_internal(
-        keymap,
-        map_keymap_call,
-        function,
-        ptr::null_mut(),
-    )
+    map_keymap_internal(keymap, map_keymap_call, function, ptr::null_mut())
 }
 
 /// Return the binding for command KEYS in current local keymap only.

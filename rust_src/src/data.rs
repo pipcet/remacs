@@ -274,11 +274,7 @@ pub fn defalias(sym: LispObject, mut definition: LispObject, docstring: LispObje
     }
 
     if docstring.is_not_nil() {
-        put(
-            sym,
-            Qfunction_documentation,
-            docstring,
-        );
+        put(sym, Qfunction_documentation, docstring);
     }
 
     // We used to return `definition', but now that `defun' and `defmacro' expand

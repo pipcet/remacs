@@ -89,7 +89,7 @@ pub const WAIT_READING_MAX: i64 = std::i64::MAX;
 struct BitfieldPadding {
     _p1: u16,
     _p2: u16,
-  _p3: u32,
+    _p3: u32,
     _p4: u32,
 }
 
@@ -1456,8 +1456,7 @@ extern "C" {
         ifrom: &mut libc::ptrdiff_t,
         ito: &mut libc::ptrdiff_t,
     );
-    pub fn string_char_to_byte(string: LispObject, char_index: libc::ptrdiff_t)
-        -> libc::ptrdiff_t;
+    pub fn string_char_to_byte(string: LispObject, char_index: libc::ptrdiff_t) -> libc::ptrdiff_t;
 
     pub fn record_unwind_current_buffer();
     pub fn set_buffer_internal(buffer: *mut Lisp_Buffer);
@@ -1514,11 +1513,8 @@ extern "C" {
         end_byte: *mut ptrdiff_t,
     ) -> *mut c_char;
 
-    pub fn hash_lookup(
-        h: *mut Lisp_Hash_Table,
-        key: LispObject,
-        hash: *mut EmacsUint,
-    ) -> ptrdiff_t;
+    pub fn hash_lookup(h: *mut Lisp_Hash_Table, key: LispObject, hash: *mut EmacsUint)
+        -> ptrdiff_t;
 
     pub fn hash_put(
         h: *mut Lisp_Hash_Table,
@@ -1603,12 +1599,7 @@ extern "C" {
         data: *const c_void,
     );
     pub fn map_keymap_char_table_item(args: LispObject, key: LispObject, val: LispObject);
-    pub fn map_keymap_call(
-        key: LispObject,
-        val: LispObject,
-        fun: LispObject,
-        void: *const c_void,
-    );
+    pub fn map_keymap_call(key: LispObject, val: LispObject, fun: LispObject, void: *const c_void);
     pub fn access_keymap(
         map: LispObject,
         idx: LispObject,
@@ -1625,11 +1616,8 @@ extern "C" {
         t: Time,
     ) -> LispObject;
 
-    pub fn make_save_funcptr_ptr_obj(
-        a: voidfuncptr,
-        b: *const c_void,
-        c: LispObject,
-    ) -> LispObject;
+    pub fn make_save_funcptr_ptr_obj(a: voidfuncptr, b: *const c_void, c: LispObject)
+        -> LispObject;
 
     pub fn Fselect_window(window: LispObject, norecord: LispObject) -> LispObject;
 

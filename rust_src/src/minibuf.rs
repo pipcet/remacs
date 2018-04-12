@@ -5,10 +5,10 @@ use remacs_sys::{minibuf_level, minibuf_window};
 use remacs_sys::Vminibuffer_list;
 
 use buffers::{current_buffer, get_buffer};
-use remacs_sys::{Qnil, Qt};
 use lisp::LispObject;
 use lisp::defsubr;
 use lists::memq;
+use remacs_sys::{Qnil, Qt};
 
 /// Return t if BUFFER is a minibuffer.
 /// No argument or nil as argument means use current buffer as BUFFER.

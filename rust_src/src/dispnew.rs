@@ -4,8 +4,8 @@ use std::{cmp, ptr};
 
 use remacs_lib::current_timespec;
 use remacs_macros::lisp_fn;
-use remacs_sys::{Qnil, Qt};
 use remacs_sys::{EmacsDouble, EmacsInt, WAIT_READING_MAX};
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::{dtotimespec, timespec_add, timespec_sub, wait_reading_process_output};
 
 use lisp::LispObject;

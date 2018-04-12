@@ -2,8 +2,8 @@
 use libc;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::{Qnil, Qt};
 use remacs_sys::{Fcons, Fmake_symbol, Fpurecopy};
+use remacs_sys::{Qnil, Qt};
 use remacs_sys::{fatal_error_in_progress, globals, initial_obarray, initialized, intern_sym,
                  make_pure_c_string, make_unibyte_string, oblookup};
 use remacs_sys::Qvectorp;
@@ -21,9 +21,7 @@ impl LispObarrayRef {
 
     /// Return a reference to the Lisp variable `obarray`.
     pub fn global() -> LispObarrayRef {
-        LispObarrayRef(check_obarray(unsafe {
-            globals.f_Vobarray
-        }))
+        LispObarrayRef(check_obarray(unsafe { globals.f_Vobarray }))
     }
 
     pub fn as_lisp_obj(&self) -> LispObject {
@@ -58,11 +56,7 @@ impl LispObarrayRef {
         } else if unsafe { globals.f_Vpurify_flag }.is_not_nil() {
             // When Emacs is running lisp code to dump to an executable, make
             // use of pure storage.
-            intern_driver(
-                unsafe { Fpurecopy(string) },
-                obj,
-                tem,
-            )
+            intern_driver(unsafe { Fpurecopy(string) }, obj, tem)
         } else {
             intern_driver(string, obj, tem)
         }
@@ -138,11 +132,7 @@ pub extern "C" fn intern_1(s: *const libc::c_char, len: libc::ptrdiff_t) -> Lisp
     } else {
         // The above `oblookup' was done on the basis of nchars==nbytes, so
         // the string has to be unibyte.
-        intern_driver(
-            unsafe { make_unibyte_string(s, len) },
-            obarray,
-            tem,
-        )
+        intern_driver(unsafe { make_unibyte_string(s, len) }, obarray, tem)
     }
 }
 
@@ -210,11 +200,7 @@ extern "C" fn mapatoms_1(sym: LispObject, function: LispObject) {
 pub fn mapatoms(function: LispObject, obarray: Option<LispObarrayRef>) -> () {
     let obarray = obarray.unwrap_or_else(LispObarrayRef::global);
 
-    map_obarray(
-        obarray.as_lisp_obj(),
-        mapatoms_1,
-        function,
-    );
+    map_obarray(obarray.as_lisp_obj(), mapatoms_1, function);
 }
 
 include!(concat!(env!("OUT_DIR"), "/obarray_exports.rs"));

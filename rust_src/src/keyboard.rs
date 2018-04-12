@@ -2,11 +2,11 @@
 
 use remacs_macros::lisp_fn;
 
-use remacs_sys::Qnil;
 use remacs_sys::{EmacsInt, TEXT_AREA};
 use remacs_sys::{Qheader_line, Qhelp_echo, Qmode_line, Qt, Qvertical_line};
 use remacs_sys::{make_lispy_position, window_box_left_offset};
 use remacs_sys::Fpos_visible_in_window_p;
+use remacs_sys::Qnil;
 
 use frames::window_frame_live_or_selected_with_action;
 use lisp::{IsLispNatnum, LispCons, LispObject};
@@ -27,9 +27,7 @@ use windows::window_or_selected_unchecked;
 pub fn posn_at_point(pos: LispObject, window: LispObject) -> LispObject {
     let window = window_or_selected_unchecked(window);
 
-    let tem = unsafe {
-        Fpos_visible_in_window_p(pos, window, Qt)
-    };
+    let tem = unsafe { Fpos_visible_in_window_p(pos, window, Qt) };
     if tem.is_nil() {
         return Qnil;
     }
@@ -59,7 +57,7 @@ pub fn posn_at_point(pos: LispObject, window: LispObject) -> LispObject {
         LispObject::from_fixnum(x_coord),
         LispObject::from_fixnum(y_coord),
         window,
-        Qnil
+        Qnil,
     )
 }
 
@@ -113,9 +111,7 @@ pub fn posn_at_x_y(
 pub fn lucid_event_type_list_p(event: Option<LispCons>) -> bool {
     event.map_or(false, |event| {
         let first = event.car();
-        if first.eq(Qhelp_echo)
-            || first.eq(Qvertical_line)
-            || first.eq(Qmode_line)
+        if first.eq(Qhelp_echo) || first.eq(Qvertical_line) || first.eq(Qmode_line)
             || first.eq(Qheader_line)
         {
             return false;

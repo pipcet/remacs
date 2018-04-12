@@ -3,7 +3,6 @@
 use libc::c_int;
 
 use remacs_macros::lisp_fn;
-use remacs_sys::Qnil;
 use remacs_sys::{selected_frame as current_frame, BoolBF, EmacsInt, Lisp_Frame, Lisp_Type};
 use remacs_sys::{fget_column_width, fget_iconified, fget_internal_border_width, fget_left_pos,
                  fget_line_height, fget_minibuffer_window, fget_output_method,
@@ -11,6 +10,7 @@ use remacs_sys::{fget_column_width, fget_iconified, fget_internal_border_width, 
                  fget_top_pos, fget_visible, frame_dimension, fset_selected_window, Fcons,
                  Fselect_window};
 use remacs_sys::{Qframe_live_p, Qframep, Qicon, Qns, Qpc, Qt, Qw32, Qx};
+use remacs_sys::Qnil;
 
 use lisp::{ExternalPtr, LispObject};
 use lisp::defsubr;
@@ -219,9 +219,7 @@ pub fn set_frame_selected_window(
 /// See also `frame-live-p'.
 #[lisp_fn]
 pub fn framep(object: LispObject) -> LispObject {
-    object
-        .as_frame()
-        .map_or_else(|| Qnil, framep_1)
+    object.as_frame().map_or_else(|| Qnil, framep_1)
 }
 
 fn framep_1(frame: LispFrameRef) -> LispObject {

@@ -73,10 +73,7 @@ impl LispHashTableRef {
 
     #[inline]
     pub fn get_hash_value(self, idx: isize) -> LispObject {
-        aref(
-            self.key_and_value,
-            (2 * idx + 1) as EmacsInt,
-        )
+        aref(self.key_and_value, (2 * idx + 1) as EmacsInt)
     }
 
     #[inline]
@@ -94,12 +91,7 @@ impl LispHashTableRef {
     }
 
     pub fn check_impure(self, object: LispHashTableRef) {
-        unsafe {
-            CHECK_IMPURE(
-                LispObject::from(object),
-                self.as_ptr() as *mut c_void,
-            )
-        };
+        unsafe { CHECK_IMPURE(LispObject::from(object), self.as_ptr() as *mut c_void) };
     }
 
     pub fn remove(mut self, key: LispObject) {
@@ -111,10 +103,7 @@ impl LispHashTableRef {
     }
 
     pub fn get_hash_key(self, idx: isize) -> LispObject {
-        aref(
-            self.key_and_value,
-            (2 * idx) as EmacsInt,
-        )
+        aref(self.key_and_value, (2 * idx) as EmacsInt)
     }
 
     pub fn size(self) -> usize {
@@ -198,8 +187,7 @@ pub fn copy_hash_table(mut table: LispHashTableRef) -> LispHashTableRef {
     unsafe { new_table.copy(table) };
     assert_ne!(new_table.as_ptr(), table.as_ptr());
 
-    let key_and_value =
-        unsafe { Fcopy_sequence(new_table.get_key_and_value()) };
+    let key_and_value = unsafe { Fcopy_sequence(new_table.get_key_and_value()) };
     let hash = unsafe { Fcopy_sequence(new_table.get_hash()) };
     let next = unsafe { Fcopy_sequence(new_table.get_next()) };
     let index = unsafe { Fcopy_sequence(new_table.get_index()) };

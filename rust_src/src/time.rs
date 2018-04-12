@@ -65,7 +65,6 @@ pub extern "C" fn disassemble_lisp_time(
     pusec: *mut LispObject,
     ppsec: *mut LispObject,
 ) -> c_int {
-
     let mut high = LispObject::from_fixnum(0);
     let mut low = specified_time;
     let mut usec = LispObject::from_fixnum(0);
