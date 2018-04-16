@@ -14,8 +14,8 @@ rust:
 # Run rustfmt first.
 stages:
   - rustfmt
-  - test
   - cerrors
+  - test
 
 jobs:
   include:
