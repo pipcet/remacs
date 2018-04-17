@@ -11,3 +11,7 @@ libc = "0.2"
 
 [build-dependencies]
 libc = "0.2"
+
+[features]
+# Treat warnings as a build error on Travis.
+strict = []
