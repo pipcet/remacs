@@ -1,5 +1,6 @@
 #![cfg_attr(feature = "clippy", feature(plugin))]
 #![cfg_attr(feature = "clippy", plugin(clippy))]
+#![cfg_attr(feature = "strict", deny(warnings))]
 #![feature(const_size_of)]
 #![feature(repr_transparent)]
 #![allow(non_camel_case_types, non_snake_case, non_upper_case_globals)]
