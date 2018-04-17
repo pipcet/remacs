@@ -5191,8 +5191,6 @@ LIBS=$SAVE_LIBS
 
 # Add Rust variables, libs and utilities
 
-RUSTFLAGS=
-
 AC_SUBST(RUSTFLAGS)
 
 CARGO="cargo"
