@@ -5,11 +5,11 @@ use remacs_sys::{Fcons, Fload, Fmapc};
 use remacs_sys::{Qfuncall, Qlistp, Qnil, Qprovide, Qquote, Qrequire, Qsubfeatures, Qt,
                  Qwrong_number_of_arguments};
 use remacs_sys::{globals, record_unwind_protect, unbind_to};
-use remacs_sys::Lisp_Object;
 use remacs_sys::Vautoload_queue;
 
 use eval::un_autoload;
-use lisp::{LispCons, LispObject};
+use lisp::LispCons;
+use lisp::LispObject;
 use lisp::defsubr;
 use lists::{assq, car, get, member, memq, put};
 use obarray::loadhist_attach;
@@ -115,7 +115,7 @@ pub fn quote(args: LispCons) -> LispObject {
 
 declare_GC_protected_static!(require_nesting_list, Qnil);
 
-unsafe extern "C" fn require_unwind(old_value: Lisp_Object) {
+unsafe extern "C" fn require_unwind(old_value: LispObject) {
     require_nesting_list = old_value;
 }
 
