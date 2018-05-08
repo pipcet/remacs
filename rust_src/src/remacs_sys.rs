@@ -1767,4 +1767,10 @@ extern "C" {
     pub fn frame_make_pointer_invisible(frame: *mut Lisp_Frame);
     pub fn bitch_at_user() -> !;
     pub fn translate_char(table: LispObject, c: EmacsInt) -> EmacsInt;
+    pub fn concat(
+        nargs: ptrdiff_t,
+        args: *mut LispObject,
+        target_type: Lisp_Type,
+        last_special: bool,
+    ) -> LispObject;
 }
