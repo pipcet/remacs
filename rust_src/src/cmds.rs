@@ -190,7 +190,7 @@ pub fn forward_line(n: Option<EmacsInt>) -> EmacsInt {
 }
 
 pub fn initial_keys() {
-    let global_map = current_global_map().to_raw();
+    let global_map = current_global_map();
 
     unsafe {
         let A = CString::new("beginning-of-line").unwrap();
@@ -232,7 +232,7 @@ pub fn delete_char(n: EmacsInt, killflag: bool) -> () {
             unsafe { del_range(buffer.pt(), pos) };
         }
     } else {
-        call_raw!(Qkill_forward_chars, LispObject::from(n).to_raw());
+        call_raw!(Qkill_forward_chars, LispObject::from(n));
     }
 }
 
@@ -260,7 +260,7 @@ pub fn self_insert_command(n: EmacsInt) {
 
     // Barf if the key that invoked this was not a character.
     if !characterp(
-        LispObject::from_raw(unsafe { globals.f_last_command_event }),
+        unsafe { globals.f_last_command_event },
         LispObject::constant_nil(),
     ) {
         unsafe { bitch_at_user() };
@@ -268,7 +268,7 @@ pub fn self_insert_command(n: EmacsInt) {
         let character = unsafe {
             translate_char(
                 globals.f_Vtranslation_table_for_input,
-                LispObject::from_raw(globals.f_last_command_event).as_fixnum_or_error(),
+                globals.f_last_command_event.as_fixnum_or_error(),
             )
         };
         let val = unsafe { internal_self_insert(character, n) };

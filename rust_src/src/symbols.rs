@@ -19,23 +19,23 @@ pub type LispSymbolRef = ExternalPtr<Lisp_Symbol>;
 
 impl LispSymbolRef {
     pub fn symbol_name(self) -> LispObject {
-        LispObject::from_raw(self.name)
+        self.name
     }
 
     pub fn get_function(self) -> LispObject {
-        LispObject::from_raw(self.function)
+        self.function
     }
 
     pub fn get_plist(self) -> LispObject {
-        LispObject::from_raw(self.plist)
+        self.plist
     }
 
     pub fn set_plist(&mut self, plist: LispObject) {
-        self.plist = plist.to_raw();
+        self.plist = plist;
     }
 
     pub fn set_function(&mut self, function: LispObject) {
-        self.function = function.to_raw();
+        self.function = function;
     }
 
     pub fn is_interned_in_initial_obarray(self) -> bool {
@@ -64,7 +64,7 @@ impl LispSymbolRef {
     }
 
     pub fn as_lisp_obj(mut self) -> LispObject {
-        LispObject::from_raw(unsafe { make_lisp_symbol(self.as_mut()) })
+        unsafe { make_lisp_symbol(self.as_mut()) }
     }
 
     /// Return the symbol holding SYMBOL's value.  Signal
@@ -105,7 +105,7 @@ impl LispSymbolRef {
     }
 
     pub fn get_value(self) -> LispObject {
-        LispObject::from_raw(unsafe { self.val.value })
+        unsafe { self.val.value }
     }
 
     pub fn get_blv(self) -> LispBufferLocalValueRef {
@@ -273,7 +273,7 @@ pub fn makunbound(symbol: LispObject) -> LispSymbolRef {
         xsignal!(Qsetting_constant, symbol);
     }
     unsafe {
-        Fset(symbol.to_raw(), Qunbound);
+        Fset(symbol, Qunbound);
     }
     sym
 }
@@ -283,12 +283,12 @@ pub fn makunbound(symbol: LispObject) -> LispSymbolRef {
 /// outside of any lexical scope.
 #[lisp_fn]
 pub fn symbol_value(symbol: LispObject) -> LispObject {
-    let raw_symbol = symbol.to_raw();
+    let raw_symbol = symbol;
     let val = unsafe { find_symbol_value(raw_symbol) };
-    if val == LispObject::constant_unbound().to_raw() {
+    if val == LispObject::constant_unbound() {
         xsignal!(Qvoid_variable, symbol);
     }
-    LispObject::from_raw(val)
+    val
 }
 
 include!(concat!(env!("OUT_DIR"), "/symbols_exports.rs"));

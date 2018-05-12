@@ -127,7 +127,7 @@ pub fn type_of(object: LispObject) -> LispObject {
             }
         }
     };
-    LispObject::from_raw(ty)
+    ty
 }
 
 #[lisp_fn]
@@ -192,20 +192,20 @@ pub fn aref(array: LispObject, idx: EmacsInt) -> LispObject {
 pub fn aset(array: LispObject, idx: EmacsInt, newelt: LispObject) -> LispObject {
     if let Some(vl) = array.as_vectorlike() {
         if let Some(mut v) = vl.as_vector() {
-            unsafe { CHECK_IMPURE(array.to_raw(), array.get_untaggedptr()) };
+            unsafe { CHECK_IMPURE(array, array.get_untaggedptr()) };
             v.set_checked(idx as isize, newelt);
         } else if let Some(mut bv) = vl.as_bool_vector() {
             bv.set_checked(idx as isize, newelt.is_not_nil());
         } else if let Some(_tbl) = vl.as_char_table() {
             verify_lisp_type!(idx, Qcharacterp);
-            unsafe { CHAR_TABLE_SET(array.to_raw(), idx as c_int, newelt.to_raw()) };
+            unsafe { CHAR_TABLE_SET(array, idx as c_int, newelt) };
         } else if let Some(mut record) = vl.as_record() {
             record.set_checked(idx as isize, newelt);
         } else {
             unreachable!();
         }
     } else if let Some(mut s) = array.as_string() {
-        unsafe { CHECK_IMPURE(array.to_raw(), array.get_untaggedptr()) };
+        unsafe { CHECK_IMPURE(array, array.get_untaggedptr()) };
         if idx < 0 || idx >= s.len_chars() as EmacsInt {
             args_out_of_range!(array, LispObject::from(idx));
         }
@@ -213,7 +213,7 @@ pub fn aset(array: LispObject, idx: EmacsInt, newelt: LispObject) -> LispObject 
         let c = newelt.as_character_or_error();
 
         if s.is_multibyte() {
-            unsafe { aset_multibyte_string(array.to_raw(), idx, c as c_int) };
+            unsafe { aset_multibyte_string(array, idx, c as c_int) };
         } else if is_single_byte_char(c) {
             s.set_byte(idx as isize, c as u8);
         } else {
@@ -221,7 +221,7 @@ pub fn aset(array: LispObject, idx: EmacsInt, newelt: LispObject) -> LispObject 
                 args_out_of_range!(array, newelt);
             }
             s.mark_as_multibyte();
-            unsafe { aset_multibyte_string(array.to_raw(), idx, c as c_int) };
+            unsafe { aset_multibyte_string(array, idx, c as c_int) };
         }
     } else {
         wrong_type!(Qarrayp, array);
@@ -247,9 +247,9 @@ pub fn defalias(sym: LispObject, mut definition: LispObject, docstring: LispObje
     unsafe {
         if globals.f_Vpurify_flag != Qnil
             // If `definition' is a keymap, immutable (and copying) is wrong.
-            && get_keymap(definition.to_raw(), false, false) == Qnil
+            && get_keymap(definition, false, false) == Qnil
         {
-            definition = LispObject::from_raw(Fpurecopy(definition.to_raw()));
+            definition = Fpurecopy(definition);
         }
     }
 
@@ -258,27 +258,23 @@ pub fn defalias(sym: LispObject, mut definition: LispObject, docstring: LispObje
         // Only add autoload entries after dumping, because the ones before are
         // not useful and else we get loads of them from the loaddefs.el.
 
-        if is_autoload(LispObject::from_raw(symbol.function)) {
+        if is_autoload(symbol.function) {
             // Remember that the function was already an autoload.
-            loadhist_attach(unsafe { Fcons(Qt, sym.to_raw()) });
+            loadhist_attach(unsafe { Fcons(Qt, sym) });
         }
-        loadhist_attach(unsafe { Fcons(if autoload { Qautoload } else { Qdefun }, sym.to_raw()) });
+        loadhist_attach(unsafe { Fcons(if autoload { Qautoload } else { Qdefun }, sym) });
     }
 
     // Handle automatic advice activation.
-    let hook = get(symbol, LispObject::from_raw(Qdefalias_fset_function));
+    let hook = get(symbol, Qdefalias_fset_function);
     if hook.is_not_nil() {
         call!(hook, sym, definition);
     } else {
-        unsafe { Ffset(sym.to_raw(), definition.to_raw()) };
+        unsafe { Ffset(sym, definition) };
     }
 
     if docstring.is_not_nil() {
-        put(
-            sym,
-            LispObject::from_raw(Qfunction_documentation),
-            docstring,
-        );
+        put(sym, Qfunction_documentation, docstring);
     }
 
     // We used to return `definition', but now that `defun' and `defmacro' expand
@@ -296,9 +292,9 @@ pub fn defalias(sym: LispObject, mut definition: LispObject, docstring: LispObje
 pub fn subr_arity(subr: LispSubrRef) -> LispObject {
     let minargs = subr.min_args();
     let maxargs = if subr.is_many() {
-        LispObject::from_raw(Qmany)
+        Qmany
     } else if subr.is_unevalled() {
-        LispObject::from_raw(Qunevalled)
+        Qunevalled
     } else {
         LispObject::from(subr.max_args() as EmacsInt)
     };
@@ -311,7 +307,7 @@ pub fn subr_arity(subr: LispSubrRef) -> LispObject {
 #[lisp_fn]
 pub fn subr_name(subr: LispSubrRef) -> LispObject {
     let name = subr.symbol_name();
-    LispObject::from_raw(unsafe { build_string(name) })
+    unsafe { build_string(name) }
 }
 
 include!(concat!(env!("OUT_DIR"), "/data_exports.rs"));

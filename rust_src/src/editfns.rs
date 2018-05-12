@@ -104,9 +104,9 @@ pub fn gap_size() -> EmacsInt {
 /// If there is no region active, signal an error.
 fn region_limit(beginningp: bool) -> EmacsInt {
     let current_buf = ThreadState::current_buffer();
-    if LispObject::from_raw(unsafe { globals.f_Vtransient_mark_mode }).is_not_nil()
-        && LispObject::from_raw(unsafe { globals.f_Vmark_even_if_inactive }).is_nil()
-        && current_buf.mark_active().is_nil()
+    if (unsafe { globals.f_Vtransient_mark_mode }).is_not_nil() && (unsafe {
+        globals.f_Vmark_even_if_inactive
+    }).is_nil() && current_buf.mark_active().is_nil()
     {
         xsignal!(Qmark_inactive);
     }
@@ -165,7 +165,7 @@ pub fn point_max() -> EmacsInt {
 #[lisp_fn(intspec = "NGoto char: ")]
 pub fn goto_char(position: LispObject) -> LispObject {
     if position.is_marker() {
-        set_point_from_marker(position.to_raw());
+        set_point_from_marker(position);
     } else if let Some(num) = position.as_fixnum() {
         let cur_buf = ThreadState::current_buffer();
         let pos = clip_to_bounds(cur_buf.begv, num, cur_buf.zv);
@@ -213,12 +213,11 @@ pub fn insert_byte(byte: EmacsInt, count: Option<EmacsInt>, inherit: bool) {
         )
     }
     let buf = ThreadState::current_buffer();
-    let toinsert =
-        if byte >= 128 && LispObject::from_raw(buf.enable_multibyte_characters).is_not_nil() {
-            EmacsInt::from(raw_byte_codepoint(byte as c_uchar))
-        } else {
-            byte
-        };
+    let toinsert = if byte >= 128 && buf.enable_multibyte_characters.is_not_nil() {
+        EmacsInt::from(raw_byte_codepoint(byte as c_uchar))
+    } else {
+        byte
+    };
     insert_char(toinsert as Codepoint, count, inherit);
 }
 
@@ -364,21 +363,21 @@ pub fn propertize(args: &[LispObject]) -> LispObject {
     let first = it.next().unwrap();
     let orig_string = first.as_string_or_error();
 
-    let copy = LispObject::from_raw(unsafe { Fcopy_sequence(first.to_raw()) });
+    let copy = unsafe { Fcopy_sequence(*first) };
 
     let mut properties = Qnil;
 
     while let Some(a) = it.next() {
         let b = it.next().unwrap(); // safe due to the odd check at the beginning
-        properties = unsafe { Fcons(a.to_raw(), Fcons(b.to_raw(), properties)) };
+        properties = unsafe { Fcons(*a, Fcons(*b, properties)) };
     }
 
     unsafe {
         Fadd_text_properties(
-            LispObject::from_natnum(0).to_raw(),
-            LispObject::from_natnum(orig_string.len_chars() as EmacsInt).to_raw(),
+            LispObject::from_natnum(0),
+            LispObject::from_natnum(orig_string.len_chars() as EmacsInt),
             properties,
-            copy.to_raw(),
+            copy,
         );
     };
 
@@ -393,9 +392,7 @@ pub fn char_to_string(character: LispObject) -> LispObject {
     let mut buffer = [0_u8; MAX_MULTIBYTE_LENGTH];
     let len = write_codepoint(&mut buffer[..], c);
 
-    LispObject::from_raw(unsafe {
-        make_string_from_bytes(buffer.as_ptr() as *const i8, 1, len as isize)
-    })
+    unsafe { make_string_from_bytes(buffer.as_ptr() as *const i8, 1, len as isize) }
 }
 
 /// Convert arg BYTE to a unibyte string containing that byte.
@@ -406,7 +403,7 @@ pub fn byte_to_string(byte: EmacsInt) -> LispObject {
     }
     let byte = byte as i8;
 
-    LispObject::from_raw(unsafe { make_string_from_bytes(&byte as *const i8, 1, 1) })
+    unsafe { make_string_from_bytes(&byte as *const i8, 1, 1) }
 }
 
 /// Return the first character in STRING.
@@ -514,9 +511,9 @@ pub fn field_beginning(
     let mut beg = 0;
     unsafe {
         find_field(
-            LispObject::from(pos).to_raw(),
-            LispObject::from(escape_from_edge).to_raw(),
-            LispObject::from(limit).to_raw(),
+            LispObject::from(pos),
+            LispObject::from(escape_from_edge),
+            LispObject::from(limit),
             &mut beg,
             Qnil,
             ptr::null_mut(),
@@ -542,11 +539,11 @@ pub fn field_end(
     let mut end = 0;
     unsafe {
         find_field(
-            LispObject::from(pos).to_raw(),
-            LispObject::from(escape_from_edge).to_raw(),
+            LispObject::from(pos),
+            LispObject::from(escape_from_edge),
             Qnil,
             ptr::null_mut(),
-            LispObject::from(limit).to_raw(),
+            LispObject::from(limit),
             &mut end,
         );
     }
@@ -608,11 +605,11 @@ pub fn constrain_to_field(
     if unsafe { globals.f_Vinhibit_field_text_motion == Qnil } && new_pos != old_pos
         && (get_char_property(
             new_pos,
-            LispObject::from_raw(Qfield),
+            Qfield,
             LispObject::constant_nil()).is_not_nil()
             || get_char_property(
                 old_pos,
-                LispObject::from_raw(Qfield),
+                Qfield,
                 LispObject::constant_nil()).is_not_nil()
             // To recognize field boundaries, we must also look at the
             // previous positions; we could use `Fget_pos_property'
@@ -621,22 +618,18 @@ pub fn constrain_to_field(
             || (new_pos > begv
                 && get_char_property(
                     prev_new,
-                    LispObject::from_raw(Qfield),
+                    Qfield,
                     LispObject::constant_nil()).is_not_nil())
             || (old_pos > begv
-                && get_char_property(
-                    prev_old,
-                    LispObject::from_raw(Qfield),
-                    LispObject::constant_nil(),
-                ).is_not_nil()))
+                && get_char_property(prev_old, Qfield, LispObject::constant_nil()).is_not_nil()))
         && (inhibit_capture_property.is_nil()
             // Field boundaries are again a problem; but now we must
             // decide the case exactly, so we need to call
             // `get_pos_property' as well.
             || (unsafe {
                 Fget_pos_property(
-                    LispObject::from(old_pos).to_raw(),
-                    inhibit_capture_property.to_raw(),
+                    LispObject::from(old_pos),
+                    inhibit_capture_property,
                     Qnil) == Qnil
             }
                 && (old_pos <= begv

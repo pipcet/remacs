@@ -39,7 +39,7 @@ pub extern "C" fn lo_time(t: time_t) -> i32 {
 /// correspondingly negative picosecond count.
 #[no_mangle]
 pub extern "C" fn make_lisp_time(t: c_timespec) -> LispObject {
-    make_lisp_time_1(t).to_raw()
+    make_lisp_time_1(t)
 }
 
 fn make_lisp_time_1(t: c_timespec) -> LispObject {
@@ -65,7 +65,7 @@ pub extern "C" fn disassemble_lisp_time(
     pusec: *mut LispObject,
     ppsec: *mut LispObject,
 ) -> c_int {
-    let specified_time = LispObject::from_raw(specified_time);
+    let specified_time = specified_time;
 
     let mut high = LispObject::from_fixnum(0);
     let mut low = specified_time;
@@ -108,10 +108,10 @@ pub extern "C" fn disassemble_lisp_time(
     }
 
     unsafe {
-        *phigh = high.to_raw();
-        *plow = low.to_raw();
-        *pusec = usec.to_raw();
-        *ppsec = psec.to_raw();
+        *phigh = high;
+        *plow = low;
+        *pusec = usec;
+        *ppsec = psec;
     }
 
     len
@@ -136,15 +136,15 @@ pub extern "C" fn decode_time_components(
     result: *mut lisp_time,
     dresult: *mut f64,
 ) -> c_int {
-    let high = LispObject::from_raw(high);
-    let usec = LispObject::from_raw(usec);
-    let psec = LispObject::from_raw(psec);
+    let high = high;
+    let usec = usec;
+    let psec = psec;
 
     if !(high.is_fixnum() && usec.is_fixnum() && psec.is_fixnum()) {
         return 0;
     }
 
-    let low = LispObject::from_raw(low);
+    let low = low;
 
     if !low.is_fixnum() {
         if let Some(t) = low.as_float() {
@@ -365,7 +365,7 @@ pub fn float_time(time: LispObject) -> LispObject {
 
     let mut t = 0.0;
 
-    if disassemble_lisp_time(time.to_raw(), &mut high, &mut low, &mut usec, &mut psec) == 0
+    if disassemble_lisp_time(time, &mut high, &mut low, &mut usec, &mut psec) == 0
         || decode_time_components(high, low, usec, psec, ptr::null_mut(), &mut t) == 0
     {
         invalid_time();

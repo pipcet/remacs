@@ -46,7 +46,7 @@ pub fn lisp_fn(attr_ts: TokenStream, fn_ts: TokenStream) -> TokenStream {
             let arg = quote! { #ident: ::lisp::LispObject, };
             cargs.append_all(arg);
 
-            let arg = quote! { ::lisp::LispObject::from_raw(#ident).into(), };
+            let arg = quote! { #ident.into(), };
             rargs.append_all(arg);
         },
         function::LispFnType::Many => {
@@ -98,7 +98,7 @@ pub fn lisp_fn(attr_ts: TokenStream, fn_ts: TokenStream) -> TokenStream {
             #body
 
             let ret = #rname(#rargs);
-            ::lisp::LispObject::from(ret).to_raw()
+            ::lisp::LispObject::from(ret)
         }
 
         lazy_static! {
