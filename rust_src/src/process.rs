@@ -6,8 +6,8 @@ use remacs_sys::{current_thread, get_process as cget_process, pget_kill_without_
                  pget_process_inherit_coding_system_flag, pget_raw_status_new,
                  pset_kill_without_query, send_process, setup_process_coding_systems,
                  update_status, Fmapcar, STRING_BYTES};
-use remacs_sys::{QCbuffer, Qcdr, Qclosed, Qexit, Qlistp, Qnetwork, Qopen, Qpipe, Qrun, Qserial,
-                 Qstop};
+use remacs_sys::{QCbuffer, Qcdr, Qclosed, Qexit, Qlistp, Qnetwork, Qnil, Qopen, Qpipe, Qrun,
+                 Qserial, Qstop, Qt};
 
 use lisp::{ExternalPtr, LispObject};
 use lisp::defsubr;
@@ -92,11 +92,7 @@ pub fn get_process(name: LispObject) -> LispObject {
         name
     } else {
         name.as_string_or_error();
-        cdr(assoc(
-            name,
-            unsafe { Vprocess_alist },
-            LispObject::constant_nil(),
-        ))
+        cdr(assoc(name, unsafe { Vprocess_alist }, Qnil))
     }
 }
 
@@ -135,11 +131,11 @@ pub fn process_id(process: LispProcessRef) -> Option<EmacsInt> {
 #[lisp_fn]
 pub fn get_buffer_process(buffer: LispObject) -> LispObject {
     if buffer.is_nil() {
-        return LispObject::constant_nil();
+        return Qnil;
     }
     let buf = get_buffer(buffer);
     if buf.is_nil() {
-        return LispObject::constant_nil();
+        return Qnil;
     }
     for tail in unsafe { Vprocess_alist }.iter_tails() {
         let p = tail.car().as_cons().unwrap().cdr();
@@ -147,7 +143,7 @@ pub fn get_buffer_process(buffer: LispObject) -> LispObject {
             return p;
         }
     }
-    LispObject::constant_nil()
+    Qnil
 }
 
 /// Return the name of the terminal PROCESS uses, or nil if none.
@@ -249,7 +245,7 @@ pub fn process_status(process: LispObject) -> LispObject {
         let process_command = p_ref.command;
         if status.eq(Qexit) {
             status = Qclosed;
-        } else if process_command.eq(LispObject::constant_t()) {
+        } else if process_command.eq(Qt) {
             status = Qstop;
         } else if status.eq(Qrun) {
             status = Qopen;

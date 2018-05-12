@@ -117,7 +117,7 @@ pub fn progn(body: LispObject) -> LispObject {
     body.iter_cars_safe()
         .map(|form| unsafe { eval_sub(form) })
         .last()
-        .map_or_else(LispObject::constant_nil, |x| x)
+        .map_or(Qnil, |x| x)
 }
 
 /// Evaluate BODY sequentially, discarding its value.
@@ -290,7 +290,7 @@ pub fn defconst(args: LispObject) -> LispSymbolRef {
 
         car(cdr(tail))
     } else {
-        LispObject::constant_nil()
+        Qnil
     };
 
     let mut tem = unsafe { eval_sub(car(cdr(args))) };
@@ -308,7 +308,7 @@ pub fn defconst(args: LispObject) -> LispSymbolRef {
         put(sym, Qvariable_documentation, docstring);
     }
 
-    put(sym, Qrisky_local_variable, LispObject::constant_t());
+    put(sym, Qrisky_local_variable, Qt);
     loadhist_attach(sym);
 
     sym_ref
@@ -326,7 +326,7 @@ fn let_binding_value(obj: LispObject) -> (LispObject, LispObject) {
     } else {
         let (front, tail) = obj.as_cons_or_error().as_tuple();
         let (to_eval, tail) = if tail.is_nil() {
-            (LispObject::constant_nil(), tail)
+            (Qnil, tail)
         } else {
             tail.as_cons_or_error().as_tuple()
         };
@@ -465,7 +465,7 @@ pub fn lisp_while(args: LispCons) -> LispObject {
         progn(body);
     }
 
-    LispObject::constant_nil()
+    Qnil
 }
 
 /// Return result of expanding macros at top level of FORM.
@@ -484,7 +484,7 @@ pub fn macroexpand(mut form: LispObject, environment: LispObject) -> LispObject 
         // Set SYM, give DEF and TEM right values in case SYM is not a symbol.
         let (mut sym, body) = form_cell.as_tuple();
         let mut def = sym;
-        let mut tem = LispObject::constant_nil();
+        let mut tem = Qnil;
 
         // Trace symbols aliases to other symbols
         // until we get a symbol that is not an alias.
@@ -546,7 +546,7 @@ pub fn eval(form: LispObject, lexical: LispObject) -> LispObject {
     let value = if lexical.is_cons() || lexical.is_nil() {
         lexical
     } else {
-        list!(LispObject::constant_t())
+        list!(Qt)
     };
 
     unsafe {
@@ -669,7 +669,7 @@ pub fn autoload(
 ) -> LispObject {
     // If function is defined and not as an autoload, don't override.
     if function.function != Qnil && !is_autoload(function.function) {
-        return LispObject::constant_nil();
+        return Qnil;
     }
 
     if unsafe { globals.f_Vpurify_flag != Qnil } && docstring.eq(LispObject::from_fixnum(0)) {
@@ -684,7 +684,7 @@ pub fn autoload(
     defalias(
         function.as_lisp_obj(),
         list!(Qautoload, file.as_lisp_obj(), docstring, interactive, ty),
-        LispObject::constant_nil(),
+        Qnil,
     )
 }
 
@@ -817,9 +817,9 @@ pub fn autoload_do_load(
     }
 
     if funname.is_nil() {
-        LispObject::constant_nil()
+        Qnil
     } else {
-        let fun = indirect_function_lisp(funname, LispObject::constant_nil());
+        let fun = indirect_function_lisp(funname, Qnil);
 
         if equal(fun, fundef) {
             error!(
@@ -871,7 +871,7 @@ pub fn run_hook_with_args(args: &mut [LispObject]) -> LispObject {
 fn funcall_nil(args: &[LispObject]) -> LispObject {
     let mut obj_array: Vec<LispObject> = args.iter().map(|o| *o).collect();
     unsafe { Ffuncall(obj_array.len() as isize, obj_array.as_mut_ptr()) };
-    LispObject::constant_nil()
+    Qnil
 }
 
 /// Run the hook HOOK, giving each function no args.
@@ -891,15 +891,15 @@ fn run_hook_with_args_internal(
     // If we are dying or still initializing,
     // don't do anything -- it would probably crash if we tried.
     if unsafe { Vrun_hooks == Qnil } {
-        return LispObject::constant_nil();
+        return Qnil;
     }
 
-    let mut ret = LispObject::constant_nil();
+    let mut ret = Qnil;
     let sym = args[0];
     let val = unsafe { find_symbol_value(sym) };
 
     if val.eq(Qunbound) || val.is_nil() {
-        LispObject::constant_nil()
+        Qnil
     } else if !val.is_cons() || val.is_module_function() {
         args[0] = val;
         func(args)

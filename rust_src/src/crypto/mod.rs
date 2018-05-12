@@ -12,7 +12,7 @@ use remacs_sys::{make_specified_string, make_uninit_string, EmacsInt};
 use remacs_sys::{code_convert_string, extract_data_from_object, preferred_coding_system,
                  string_char_to_byte, validate_subarray, Fcoding_system_p};
 use remacs_sys::{globals, Ffind_operation_coding_system, Flocal_variable_p};
-use remacs_sys::{Qbuffer_file_coding_system, Qcoding_system_error, Qmd5, Qraw_text, Qsha1,
+use remacs_sys::{Qbuffer_file_coding_system, Qcoding_system_error, Qmd5, Qnil, Qraw_text, Qsha1,
                  Qsha224, Qsha256, Qsha384, Qsha512, Qstringp, Qwrite_region};
 use remacs_sys::{current_thread, make_buffer_string, record_unwind_current_buffer,
                  set_buffer_internal};
@@ -106,7 +106,7 @@ fn get_coding_system_for_buffer(
         return unsafe { globals.f_Vcoding_system_for_write };
     }
     if (buffer.buffer_file_coding_system.is_nil() || (unsafe {
-        Flocal_variable_p(Qbuffer_file_coding_system, LispObject::constant_nil())
+        Flocal_variable_p(Qbuffer_file_coding_system, Qnil)
     }).is_nil()) && buffer.enable_multibyte_characters.is_nil()
     {
         return Qraw_text;
@@ -132,10 +132,10 @@ fn get_coding_system_for_buffer(
             LispObject::from_natnum(start_byte as EmacsInt),
             LispObject::from_natnum(end_byte as EmacsInt),
             coding_system,
-            LispObject::constant_nil()
+            Qnil
         );
     }
-    LispObject::constant_nil()
+    Qnil
 }
 
 fn get_input_from_string(
@@ -233,16 +233,8 @@ fn get_input(
                 noerror,
             );
             *string = Some(
-                unsafe {
-                    code_convert_string(
-                        object,
-                        coding_system,
-                        LispObject::constant_nil(),
-                        true,
-                        false,
-                        true,
-                    )
-                }.as_string_or_error(),
+                unsafe { code_convert_string(object, coding_system, Qnil, true, false, true) }
+                    .as_string_or_error(),
             )
         }
         get_input_from_string(object, string.unwrap(), start, end).as_string_or_error()
@@ -264,16 +256,8 @@ fn get_input(
                 ),
                 noerror,
             );
-            unsafe {
-                code_convert_string(
-                    s,
-                    coding_system,
-                    LispObject::constant_nil(),
-                    true,
-                    false,
-                    false,
-                )
-            }.as_string_or_error()
+            unsafe { code_convert_string(s, coding_system, Qnil, true, false, false) }
+                .as_string_or_error()
         } else {
             ss
         }
@@ -323,7 +307,7 @@ pub fn md5(
         end,
         coding_system,
         noerror,
-        LispObject::constant_nil(),
+        Qnil,
     )
 }
 
@@ -346,15 +330,7 @@ pub fn secure_hash(
     end: LispObject,
     binary: LispObject,
 ) -> LispObject {
-    _secure_hash(
-        hash_alg(algorithm),
-        object,
-        start,
-        end,
-        LispObject::constant_nil(),
-        LispObject::constant_nil(),
-        binary,
-    )
+    _secure_hash(hash_alg(algorithm), object, start, end, Qnil, Qnil, binary)
 }
 
 fn _secure_hash(

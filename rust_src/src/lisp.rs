@@ -22,8 +22,8 @@ use remacs_sys::{Lisp_Cons, Lisp_Float, Lisp_Misc_Any, Lisp_Misc_Type, Lisp_Subr
 use remacs_sys::{Qarrayp, Qautoload, Qbufferp, Qchar_table_p, Qcharacterp, Qconsp, Qfloatp,
                  Qframe_live_p, Qframep, Qhash_table_p, Qinteger_or_marker_p, Qintegerp, Qlistp,
                  Qmarkerp, Qnil, Qnumber_or_marker_p, Qnumberp, Qoverlayp, Qplistp, Qprocessp,
-                 Qstringp, Qsubrp, Qsymbolp, Qt, Qthreadp, Qunbound, Qvectorp, Qwholenump,
-                 Qwindow_live_p, Qwindow_valid_p, Qwindowp, Vbuffer_alist};
+                 Qstringp, Qsubrp, Qsymbolp, Qt, Qthreadp, Qvectorp, Qwholenump, Qwindow_live_p,
+                 Qwindow_valid_p, Qwindowp, Vbuffer_alist};
 use remacs_sys::{build_string, empty_unibyte_string, internal_equal, lispsym, make_float,
                  misc_get_ty};
 
@@ -83,26 +83,11 @@ impl LispObject {
     }
 
     #[inline]
-    pub fn constant_unbound() -> LispObject {
-        Qunbound
-    }
-
-    #[inline]
-    pub fn constant_t() -> LispObject {
-        Qt
-    }
-
-    #[inline]
-    pub fn constant_nil() -> LispObject {
-        Qnil
-    }
-
-    #[inline]
     pub fn from_bool(v: bool) -> LispObject {
         if v {
-            LispObject::constant_t()
+            Qt
         } else {
-            LispObject::constant_nil()
+            Qnil
         }
     }
 
@@ -119,7 +104,7 @@ where
     #[inline]
     fn from(v: Option<T>) -> Self {
         match v {
-            None => LispObject::constant_nil(),
+            None => Qnil,
             Some(v) => LispObject::from(v),
         }
     }
@@ -127,7 +112,7 @@ where
 
 impl From<()> for LispObject {
     fn from(_v: ()) -> Self {
-        LispObject::constant_nil()
+        Qnil
     }
 }
 
@@ -142,9 +127,9 @@ impl From<bool> for LispObject {
     #[inline]
     fn from(v: bool) -> Self {
         if v {
-            LispObject::constant_t()
+            Qt
         } else {
-            LispObject::constant_nil()
+            Qnil
         }
     }
 }

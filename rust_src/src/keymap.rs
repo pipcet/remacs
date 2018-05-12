@@ -111,7 +111,7 @@ pub extern "C" fn get_keymap(
                 let tail = nth(4, tem);
                 if tail.eq(Qkeymap) {
                     if autoload {
-                        autoload_do_load(tem, object, LispObject::constant_nil());
+                        autoload_do_load(tem, object, Qnil);
                         autoload_retry = true;
                     } else {
                         return object;
@@ -141,7 +141,7 @@ pub fn make_keymap(string: LispObject) -> LispObject {
     let tail: LispObject = if !string.is_nil() {
         list!(string)
     } else {
-        LispObject::constant_nil()
+        Qnil
     };
 
     let char_table = unsafe { Fmake_char_table(Qkeymap, Qnil) };
@@ -166,7 +166,7 @@ pub fn keymapp(object: LispObject) -> bool {
 #[no_mangle]
 pub extern "C" fn keymap_parent(keymap: LispObject, autoload: bool) -> LispObject {
     let map = get_keymap(keymap, true, autoload);
-    let mut current = LispObject::constant_nil();
+    let mut current = Qnil;
     for elt in map.iter_tails_safe() {
         current = elt.cdr();
         if keymapp(current) {
@@ -257,7 +257,7 @@ pub fn keymap_prompt(map: LispObject) -> LispObject {
             }
         }
     }
-    LispObject::constant_nil()
+    Qnil
 }
 
 /// Same as `map_keymap_internal`, but traverses parent keymaps as well.
@@ -302,7 +302,7 @@ pub fn map_keymap_lisp(function: LispObject, keymap: LispObject, sort_first: boo
         return call!(intern("map-keymap-sorted"), function, keymap);
     }
     map_keymap(keymap, map_keymap_call, function, ptr::null_mut(), true);
-    LispObject::constant_nil()
+    Qnil
 }
 
 /// Call FUN for every binding in MAP and stop at (and return) the parent.
@@ -315,7 +315,7 @@ pub extern "C" fn map_keymap_internal(
     data: *const c_void,
 ) -> LispObject {
     let tail = match map.as_cons() {
-        None => LispObject::constant_nil(),
+        None => Qnil,
         Some(cons) => {
             let (car, cdr) = cons.as_tuple();
             if car.eq(Qkeymap) {
@@ -387,7 +387,7 @@ pub fn map_keymap_internal_lisp(function: LispObject, mut keymap: LispObject) ->
 pub fn local_key_binding(keys: LispObject, accept_default: LispObject) -> LispObject {
     let map = current_local_map();
     if map.is_nil() {
-        LispObject::constant_nil()
+        Qnil
     } else {
         lookup_key(map, keys, accept_default)
     }
@@ -424,7 +424,7 @@ pub fn use_local_map(mut keymap: LispObject) -> () {
 pub fn global_key_binding(keys: LispObject, accept_default: LispObject) -> LispObject {
     let map = current_global_map();
     if map.is_nil() {
-        LispObject::constant_nil()
+        Qnil
     } else {
         lookup_key(map, keys, accept_default)
     }

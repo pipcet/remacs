@@ -2,6 +2,7 @@
 
 use remacs_macros::lisp_fn;
 use remacs_sys::{minibuf_level, minibuf_window};
+use remacs_sys::Qnil;
 use remacs_sys::Vminibuffer_list;
 
 use buffers::{current_buffer, get_buffer};
@@ -30,7 +31,7 @@ pub fn minibufferp(object: LispObject) -> bool {
 pub fn active_minibuffer_window() -> LispObject {
     unsafe {
         if minibuf_level == 0 {
-            LispObject::constant_nil()
+            Qnil
         } else {
             minibuf_window
         }

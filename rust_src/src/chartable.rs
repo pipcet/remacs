@@ -6,8 +6,8 @@ use libc;
 
 use remacs_macros::lisp_fn;
 use remacs_sys::{ChartabSize, Lisp_Char_Table, Lisp_Sub_Char_Table, Lisp_Type};
+use remacs_sys::{Qchar_code_property_table, Qnil};
 use remacs_sys::PSEUDOVECTOR_SIZE_MASK;
-use remacs_sys::Qchar_code_property_table;
 use remacs_sys::uniprop_table_uncompress;
 
 use lisp::{ExternalPtr, LispObject};
@@ -173,7 +173,7 @@ pub fn set_char_table_parent(
     chartable.parent = if let Some(p) = parent {
         p.as_lisp_obj()
     } else {
-        LispObject::constant_nil()
+        Qnil
     };
     //parent
 }

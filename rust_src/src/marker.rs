@@ -10,6 +10,7 @@ use remacs_sys::{buf_charpos_to_bytepos, mget_buffer, mget_bytepos, mget_charpos
                  mget_insertion_type, mget_next_marker, mset_buffer, mset_insertion_type,
                  mset_next_marker, set_marker_internal, set_point_both, unchain_marker,
                  Fmake_marker};
+use remacs_sys::Qnil;
 
 use buffers::LispBufferRef;
 use lisp::{ExternalPtr, LispObject};
@@ -193,7 +194,7 @@ pub fn copy_marker(marker: LispObject, itype: LispObject) -> LispObject {
     let buffer_or_nil = marker
         .as_marker()
         .and_then(|m| m.buffer())
-        .map_or(LispObject::constant_nil(), |b| b.as_lisp_obj());
+        .map_or(Qnil, |b| b.as_lisp_obj());
 
     set_marker(new, marker, buffer_or_nil);
     unsafe {
